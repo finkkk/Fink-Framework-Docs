@@ -30,7 +30,31 @@
 }
 
 .artalk-comments .atk-main-editor > .atk-header {
+  gap: 0;
   padding: 14px 16px 0;
+}
+
+.artalk-comments .atk-main-editor > .atk-header input {
+  margin-right: 0 !important;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  padding: 8px 12px 10px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.artalk-comments .atk-main-editor > .atk-header input + input {
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+.artalk-comments .atk-main-editor > .atk-header input::placeholder {
+  color: var(--vp-c-text-3);
+  opacity: 1;
+}
+
+.artalk-comments .atk-main-editor > .atk-header input:focus {
+  border-bottom-color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg-soft);
 }
 
 .artalk-comments .atk-main-editor > .atk-textarea-wrap > .atk-textarea {
@@ -78,5 +102,15 @@
   .artalk-comments {
     margin-top: 40px;
     padding-top: 24px;
+  }
+
+  .artalk-comments .atk-main-editor > .atk-header {
+    flex-direction: column;
+    padding: 10px 12px 0;
+  }
+
+  .artalk-comments .atk-main-editor > .atk-header input + input {
+    border-top: 1px solid var(--vp-c-divider);
+    border-left: 0;
   }
 }
