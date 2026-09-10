@@ -33,5 +33,5 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div id="Comments"></div>
+  <div id="Comments" class="artalk-comments"></div>
 </template>

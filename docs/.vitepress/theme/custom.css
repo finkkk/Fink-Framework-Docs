@@ -1,0 +1,82 @@
+/* Artalk comment area */
+.artalk-comments {
+  width: 100%;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.artalk-comments .artalk {
+  --at-color-font: var(--vp-c-text-1);
+  --at-color-deep: var(--vp-c-text-1);
+  --at-color-sub: var(--vp-c-text-2);
+  --at-color-grey: var(--vp-c-text-2);
+  --at-color-meta: var(--vp-c-text-2);
+  --at-color-border: var(--vp-c-divider);
+  --at-color-bg: var(--vp-c-bg);
+  --at-color-bg-grey: var(--vp-c-bg-soft);
+  --at-color-main: var(--vp-c-brand-1);
+
+  background: transparent;
+  min-height: 0;
+}
+
+.artalk-comments .atk-main-editor {
+  margin-bottom: 22px;
+  border-color: var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  box-shadow: none;
+}
+
+.artalk-comments .atk-main-editor > .atk-header {
+  padding: 14px 16px 0;
+}
+
+.artalk-comments .atk-main-editor > .atk-textarea-wrap > .atk-textarea {
+  min-height: 132px;
+  padding: 14px 18px;
+}
+
+.artalk-comments .atk-main-editor > .atk-bottom {
+  padding: 8px 10px 10px;
+}
+
+.artalk-comments .atk-main-editor > .atk-bottom .atk-send-btn {
+  min-width: 88px;
+  height: 34px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.artalk-comments .atk-main-editor > .atk-bottom .atk-send-btn:hover {
+  box-shadow: 0 6px 14px rgb(0 131 255 / 24%);
+  transform: translateY(-1px);
+}
+
+.artalk-comments .atk-list > .atk-list-header {
+  padding: 4px 4px 14px;
+}
+
+.artalk-comments .atk-list > .atk-list-body {
+  border-top: 1px solid var(--vp-c-divider);
+  padding-top: 8px;
+}
+
+.artalk-comments .atk-list-no-comment {
+  min-height: 112px;
+  color: var(--vp-c-text-2);
+  font-size: 16px;
+}
+
+.artalk-comments .atk-list-footer .atk-copyright {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .artalk-comments {
+    margin-top: 40px;
+    padding-top: 24px;
+  }
+}
