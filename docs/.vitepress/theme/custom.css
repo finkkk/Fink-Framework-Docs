@@ -2,8 +2,7 @@
 .artalk-comments {
   width: 100%;
   margin-top: 64px;
-  padding-top: 32px;
-  border-top: 1px solid var(--vp-c-divider);
+  padding-top: 0;
 }
 
 .artalk-comments .artalk {
@@ -60,6 +59,27 @@
 .artalk-comments .atk-main-editor > .atk-textarea-wrap > .atk-textarea {
   min-height: 132px;
   padding: 14px 18px;
+}
+
+.artalk-comments .atk-main-editor > .atk-notify-wrap {
+  right: auto;
+  bottom: 52px;
+  left: 50%;
+  width: min(360px, calc(100% - 32px));
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+.artalk-comments .atk-main-editor > .atk-notify-wrap .atk-notify {
+  border: 1px solid var(--vp-c-danger-1, #d03050);
+  border-radius: 8px;
+  background: var(--vp-c-danger-soft, #fff1f0) !important;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 12%);
+  color: var(--vp-c-danger-1, #d03050) !important;
+}
+
+.artalk-comments .atk-main-editor > .atk-notify-wrap .atk-notify-content {
+  color: var(--vp-c-danger-1, #d03050) !important;
 }
 
 .artalk-comments .atk-main-editor > .atk-bottom {
