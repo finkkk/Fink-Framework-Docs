@@ -7,6 +7,10 @@ export default defineConfig({
   title: "Fink Framework 使用文档",
   description: "Fink Framework —— 面向 Unity 游戏开发的模块化开发框架文档",
   themeConfig: {
+    logo: {
+      src: '/images/brand/f_logo.webp',
+      alt: 'Fink Framework 标志'
+    },
     // https://vitepress.dev/reference/default-theme-config
     // 中文界面文案（包含移动端菜单与“本页内容”入口）
     sidebarMenuLabel: '菜单',
@@ -126,5 +130,12 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/finkkk/Fink-Framework-Docs' }
     ]
-  }
+  },
+  head: [
+    ['link', {
+      rel: 'icon',
+      type: 'image/webp',
+      href: '/fink-framework/images/brand/f_logo.webp'
+    }]
+  ]
 })
