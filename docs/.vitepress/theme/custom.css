@@ -132,10 +132,7 @@
   .artalk-comments .atk-main-editor > .atk-header input {
     border-top: 0;
     border-bottom: 1px solid var(--vp-c-divider);
-  }
-
-  .artalk-comments .atk-main-editor > .atk-header input:first-child {
-    border-top: 1px solid var(--vp-c-divider);
+    min-height: 48px;
   }
 
   .artalk-comments .atk-main-editor > .atk-header input + input {
