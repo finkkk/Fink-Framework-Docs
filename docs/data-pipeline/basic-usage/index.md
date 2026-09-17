@@ -1,10 +1,8 @@
 # 数据管线基础使用
 
-本章节将带你完成一次完整的数据管线流程：
+本页介绍数据管线的完整日常流程：创建 Excel、执行 QA 校验、生成 C# 类型、导出 JSON / Binary，并在运行时读取强类型数据。
 
-**创建 Excel → QA 校验 → 生成 C# 代码 → 导出 JSON / Binary → 运行时读取。**
-
-如果你从未使用过 Fink Framework 的数据管线，建议从本页开始。操作前请先完成[安装与初始化](/getting-started/setup/)，并确认全局设置中的数据模式、C# 输出位置和加密配置符合项目需求。
+使用前提：先完成[安装与初始化](/getting-started/setup/)，确认全局设置中的数据模式、C# 输出位置和加密配置，再按照“创建 Excel → QA 校验 → 生成代码 → 导出数据 → 运行时读取”的顺序操作。
 
 ## 1. 创建 Excel 配置表
 
@@ -47,14 +45,12 @@ FinkFramework_Data/DataTables/Test/Example.xlsx
 在 Unity 顶部菜单选择：
 
 ```text
-Fink Framework → 数据工具面板
+Fink Framework → 数据管线系统 → 数据工具面板
 ```
 
 ![从 Unity 菜单打开数据工具面板](/images/data-pipeline/panel1.webp)
 
-打开后可以看到数据处理、QA 验证和执行日志三个区域：
-
-![数据工具面板](/images/data-pipeline/panel2.webp)
+打开后可以看到“主功能”“QA 验证”和“执行日志”三个区域。
 
 ## 3. 执行 QA 验证
 
@@ -106,7 +102,7 @@ Excel 源文件所在的 `FinkFramework_Data/DataTables/` 不会被删除。
 | **内部输出（默认）** | `Assets/Scripts/Data/AutoGen/DataClass/` |
 | **外部输出** | `FinkFramework_Data/AutoGen/DataClass/` |
 
-内部输出位于 `Assets` 中，会触发 Unity 脚本编译；工具会记录当前处理阶段，并在编译完成后继续执行导出。具体路径可以在全局设置中调整。
+内部输出位于 `Assets` 中，会触发 Unity 脚本编译；工具会记录当前处理阶段，并在编译完成后继续执行导出。外部输出位于项目根目录，不参与 Unity 脚本编译。具体路径可以在 Data Pipeline 设置中调整。
 
 ### 4.3 导出 JSON
 
@@ -146,7 +142,7 @@ Assets/StreamingAssets/FinkFramework_Data/DataBinary/
 
 在 Editor 和桌面平台中，可以根据需要选择同步或异步读取默认数据：
 
-Editor 和桌面 PC 平台均可根据业务需要选择同步或异步读取；移动端只能使用异步读取。如果不确定目标平台，建议统一使用异步接口，以确保跨平台兼容。在移动端调用同步接口时，框架会触发提醒。
+Editor 和桌面 PC 可以选择同步或异步读取；Android、iOS 等 `StreamingAssets` 为 URI 的平台使用异步读取。如果项目面向多个平台，统一使用异步接口即可。
 
 ```csharp
 using Data.AutoGen.DataClass;

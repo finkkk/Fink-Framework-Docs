@@ -58,14 +58,24 @@ export default defineConfig({
       },
       {
         text: 'UI 系统（UI System）',
-        collapsed: true,
+        collapsed: false,
         items: [
           { text: 'UI 系统概述（Overview）', link: '/ui-system/' },
           { text: 'UI 系统配置（Configuration）', link: '/ui-system/configuration/' },
-          { text: '平面 UI 的使用（Screen）', link: '/ui-system/screen/' },
-          { text: '空间 UI 的使用（World）', link: '/ui-system/world/' },
+          { text: '基础使用（Basic Usage）', link: '/ui-system/basic-usage/' },
+          { text: 'Surface 与空间 UI（World）', link: '/ui-system/surfaces/' },
           { text: 'UI 面板生成器（UI Builder）', link: '/ui-system/ui-builder/' },
-          { text: 'UI 生命周期（UI Mono）', link: '/ui-system/ui-mono/' }
+          { text: '运行时 API 使用（API）', link: '/ui-system/api/' }
+        ]
+      },
+      {
+        text: '输入系统（Input System）',
+        collapsed: true,
+        items: [
+          { text: '输入系统概述（Overview）', link: '/input-system/' },
+          { text: '输入系统配置（Configuration）', link: '/input-system/configuration/' },
+          { text: '基础使用（Basic Usage）', link: '/input-system/basic-usage/' },
+          { text: '运行时 API 使用（API）', link: '/input-system/api/' }
         ]
       },
       {
@@ -97,7 +107,6 @@ export default defineConfig({
           { text: '单例模式（Singleton）', link: '/core-systems/singleton/' },
           { text: '对象池系统（ObjectPool）', link: '/core-systems/object-pool/' },
           { text: '生命周期系统（Mono）', link: '/core-systems/mono/' },
-          { text: '输入系统（Input）', link: '/core-systems/input/' },
           { text: '定时系统（Timer）', link: '/core-systems/timer/' },
           { text: '音效系统（Audio）', link: '/core-systems/audio/' },
           { text: '场景切换系统（Scene）', link: '/core-systems/scene/' },

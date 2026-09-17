@@ -2,7 +2,7 @@
 
 本页介绍数据管线的运行时数据源、C# 代码生成路径和数据加密设置。开始制作正式配表前，建议先完成这些配置。
 
-数据管线设置入口：`Edit` → `Project Settings` → `Fink Framework` → `Data Pipeline`。
+数据管线设置入口：`Edit` → `Project Settings` → `Fink Framework` → `Data Pipeline`，也可以从 `Fink Framework → 数据管线系统 → 数据管线配置` 打开。
 
 ![数据管线设置面板](/images/data-pipeline/set.webp)
 
@@ -58,9 +58,9 @@ FinkFramework_Data/DataTables
 
 Json 模式不会生成二进制文件；Binary 模式生成的外部 JSON 只用于检查和调试，不会作为运行时数据源。以上数据路径由框架统一管理，无需手动指定。
 
-## 4. 数据加密
+## 4. 二进制数据加密
 
-进入 `Encryption` 面板，可以配置二进制数据的加密方式。
+加密配置就在 Data Pipeline 页面中，与运行时数据源和 C# 输出路径统一管理。
 
 ### 4.1 全局开启加密
 
@@ -74,7 +74,7 @@ Json 模式不会生成二进制文件；Binary 模式生成的外部 JSON 只�
 
 可以修改加密数据文件使用的扩展名，例如 `.fink`、`.dat` 或 `.bytes`。扩展名只起到文件识别和一定程度的混淆作用，本身不等于安全加密。
 
-修改密钥、加密开关或扩展名后，需要重新导出数据；旧文件不会自动转换为新配置。
+修改密钥、加密开关或扩展名后，需要重新导出数据；已经写出的数据文件不会自动按新配置转换。
 
 ## 5. 推荐配置
 

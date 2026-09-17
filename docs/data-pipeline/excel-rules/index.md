@@ -1,7 +1,8 @@
 # Excel 配表规则
 
-Fink Framework 的数据管线约定了一套**统一、严格且易用**的 Excel 配表规范。
-遵循本规则可确保：
+本页介绍数据管线对 Excel 文件位置、表格行结构、字段命名、数据类型和单元格格式的要求，是创建和维护配置表时的规范参考。
+
+适用范围：`FinkFramework_Data/DataTables/` 下由数据管线扫描的全部 `.xlsx` 文件。遵循本页规则可确保：
 
 - 自动生成的数据类结构清晰、无歧义；
 - QA 校验顺利通过；
@@ -329,7 +330,7 @@ public class DropInfoData
 FinkFramework_Data/DataTables/Test/
 ```
 
-然后在 Unity 顶部菜单选择 `Fink Framework → 数据工具面板`，点击“**一键处理全部数据**”。运行后会生成数据类、容器类以及对应的 JSON 或 Binary 运行时数据文件。
+然后在 Unity 顶部菜单选择 `Fink Framework → 数据管线系统 → 数据工具面板`，点击“**一键处理全部数据**”。运行后会生成数据类、容器类以及对应的 JSON 或 Binary 运行时数据文件。
 
 在任意脚本中，可以通过数据容器类的泛型读取数据：
 

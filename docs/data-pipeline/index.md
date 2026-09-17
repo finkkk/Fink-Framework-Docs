@@ -1,8 +1,8 @@
 # 数据管线概述
 
-Fink Framework 内置了一套面向 Unity 配置数据的自动化管线，用于将 Excel（`.xlsx`）配置表转换为运行时可读取的强类型数据。
+本页介绍 Fink Framework 数据管线的整体工作流、Excel 配表结构、代码与运行时文件产物、质量校验以及运行时读取方式，帮助你建立从表格维护到游戏内使用的完整认识。
 
-一张表可以生成对应的 **C# 数据类与容器类**，并根据全局设置导出 **JSON** 或 **Binary** 运行时文件。数据源模式、C# 输出位置和加密选项可在 `Project Settings → Fink Framework` 中统一配置，详见[安装与初始化](/getting-started/setup/#_4-全局配置说明)。
+使用入口：在 `FinkFramework_Data/DataTables/` 中维护 Excel，通过 `Fink Framework → 数据管线系统 → 数据工具面板` 执行生成、校验和导出；运行时使用 `DataFilesUtil` 读取生成的数据。数据源模式、C# 输出位置和加密选项可在 `Project Settings → Fink Framework → Data Pipeline` 中统一配置。
 
 ::: tip 一句话理解
 策划维护 Excel，工具负责生成代码、校验内容和导出文件，业务代码最终只与强类型数据交互。
@@ -81,7 +81,7 @@ JSON 序列化还内置了 Vector、Color、Bounds、Rect、Matrix4x4 和 Quater
 
 ## 5. 编辑器工作流
 
-在 Unity 顶部菜单选择 `Fink Framework → 数据工具面板`，可以执行：
+在 Unity 顶部菜单选择 `Fink Framework → 数据管线系统 → 数据工具面板`，可以执行：
 
 - **一键处理全部数据**：清理旧产物 → 生成代码 → 等待编译 → 导出数据 → 输出汇总；
 - **仅生成数据文件**：只更新 C# 数据类与容器类；

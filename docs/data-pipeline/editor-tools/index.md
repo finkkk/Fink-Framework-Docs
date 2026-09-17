@@ -1,22 +1,20 @@
 # 面板工具使用
 
-Fink Framework 内置了完整的数据处理工具面板，用于在 Unity 编辑器中以图形化、一键执行的方式完成：
+本页介绍数据工具面板中生成、导出、清理、QA 验证和执行日志等功能的使用方式，帮助你在 Unity 编辑器内完成完整的数据处理流程。
 
-**Excel → 自动生成 C# 代码 → 解析数据 → 导出 JSON / Binary。**
+功能入口：在 Unity 顶部菜单选择 `Fink Framework → 数据管线系统 → 数据工具面板`。面板按照“Excel → 生成 C# 代码 → 解析数据 → 导出 JSON / Binary”的顺序组织操作。
 
 ## 打开面板
 
 在 Unity 顶部菜单选择：
 
 ```text
-Fink Framework → 数据工具面板
+Fink Framework → 数据管线系统 → 数据工具面板
 ```
 
 ![从 Unity 菜单打开数据工具面板](/images/data-pipeline/panel1.webp)
 
 该窗口用于替代手动调用 `DataGenTool`、`DataParseTool`、`DataExportTool` 等工具，让数据管线更加自动化、可视化、可调试。
-
-![数据工具面板](/images/data-pipeline/panel2.webp)
 
 ## 1. 面板概览
 
@@ -60,7 +58,7 @@ DataHandleTool.HandleAllData();
 
 按钮名称：`清空加密数据`
 
-点击后会清空并重新创建以下目录：
+按钮名称保留为“清空加密数据”，实际作用是清空并重新创建所有由数据管线维护的导出目录：
 
 - `Assets/StreamingAssets/FinkFramework_Data/`（Unity 编辑器环境）；
 - `Application.persistentDataPath/FinkFramework_Data/`；
@@ -239,4 +237,4 @@ QA 不会修改 Excel 源文件或导出运行时数据。
 | **DataHandleTool** | 组合清理、生成、等待编译、解析和导出流程，实现“一键处理全部数据”。 |
 | **DataToolWindow** | 编辑器可视化入口，只负责显示面板、响应按钮和输出日志。 |
 
-数据工具面板让 Fink Framework 的数据管线做到可视化、一键化、自动化、可调试和可验证，适合程序与策划共同使用。
+数据工具面板让 Fink Framework 的数据管线做到可视化、一键化、自动化、可调试和可验证，适合程序与策划共同使用。数据模式、加密、扩展名和 C# 输出目录统一在 Data Pipeline 设置页维护。

@@ -1,13 +1,8 @@
 # 运行时 API 使用
 
-本章介绍 Fink Framework 数据管线中运行时可直接调用的数据 API，包括：
+本页介绍 Fink Framework 数据管线的运行时 API，包括默认数据和本地数据读取、本地数据保存、JSON / Binary 序列化、数据路径处理以及复杂泛型类型解析。
 
-- 默认数据和本地数据读取；
-- 本地数据保存；
-- JSON / Binary 数据的自动序列化与反序列化；
-- 数据路径自动查找；
-- 数组、List、Dictionary 和嵌套泛型的类型解析；
-- 路径工具和数据缓存清理。
+运行时入口：常规业务代码优先使用 `FinkFramework.Runtime.Data.DataFilesUtil`；需要处理序列化、类型查找或路径工具时，再使用 `DataUtil` 和 `PathUtil`。
 
 运行时 API 主要集中在以下几个类中：
 
@@ -17,7 +12,7 @@
 | `DataUtil` | 序列化、反序列化、JSON / Binary 转换、AES 加密解密以及类型查找。 |
 | `PathUtil` | 规范化路径并确保目标目录存在。 |
 
-旧文档中出现的 `FilesUtil` 在当前版本中对应 `DataFilesUtil`。用户通常只需要重点关注 `DataFilesUtil` 的读取和保存 API，其余方法主要由框架内部使用。
+常规业务代码通常只需要关注 `DataFilesUtil` 的读取和保存 API，其余方法主要用于扩展数据流程或处理底层文件。
 
 ## 1. 数据读取 API
 
