@@ -57,6 +57,16 @@ export default defineConfig({
         ]
       },
       {
+        text: '存档系统（Save System）',
+        collapsed: true,
+        items: [
+          { text: '存档系统概述（Overview）', link: '/save-system/' },
+          { text: '存档系统配置（Configuration）', link: '/save-system/configuration/' },
+          { text: '基础使用（Basic Usage）', link: '/save-system/basic-usage/' },
+          { text: '运行时 API 使用（API）', link: '/save-system/api/' }
+        ]
+      },
+      {
         text: 'UI 系统（UI System）',
         collapsed: false,
         items: [
@@ -84,8 +94,8 @@ export default defineConfig({
         items: [
           { text: '资源加载概述（Overview）', link: '/resload/' },
           { text: '资源后端配置（Configuration）', link: '/resload/configuration/' },
-          { text: '资源插件系统（Provider）', link: '/resload/provider/' },
-          { text: '基础使用（Basic Usage）', link: '/resload/basic-usage/' }
+          { text: '基础使用（Basic Usage）', link: '/resload/basic-usage/' },
+          { text: '资源插件系统（Provider）', link: '/resload/provider/' }
         ]
       },
       {
@@ -93,8 +103,8 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: '本地化概述（Overview）', link: '/localization/' },
-          { text: '基础使用（Basic Usage）', link: '/localization/basic-usage/' },
           { text: '本地化配置（Configuration）', link: '/localization/configuration/' },
+          { text: '基础使用（Basic Usage）', link: '/localization/basic-usage/' },
           { text: '本地化配表（Tables）', link: '/localization/tables/' },
           { text: '运行时 API 使用（API）', link: '/localization/api/' }
         ]
@@ -103,7 +113,6 @@ export default defineConfig({
         text: '基础系统（Core Systems）',
         collapsed: true,
         items: [
-          { text: '基础系统概述（Overview）', link: '/core-systems/' },
           { text: '单例模式（Singleton）', link: '/core-systems/singleton/' },
           { text: '对象池系统（ObjectPool）', link: '/core-systems/object-pool/' },
           { text: '生命周期系统（Mono）', link: '/core-systems/mono/' },

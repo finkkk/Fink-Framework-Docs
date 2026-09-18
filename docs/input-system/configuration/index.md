@@ -4,6 +4,8 @@
 
 配置入口：`Edit` → `Project Settings` → `Fink Framework` → `Input`；输入后端的强制关闭选项位于同一设置树下的 `Framework` 页面。
 
+![输入系统配置面板](/images/input-system/set.webp)
+
 ## 1. 设备输入检测
 
 | 配置项 | 默认值 | 作用 |

@@ -211,6 +211,6 @@ bool switched = await LocalizationManager.SwitchLocaleAsync(
 如果直接在外部编辑器修改源 JSON，请回到本地化语言表点击“重新读取”，确认差异后再保存。不要只修改 `StreamingAssets` 下的自动副本。
 :::
 
-## 下一步
+## 9. 详细介绍
 
 详细字段、目录、命名和 Excel 交换格式参见[本地化配表](/localization/tables/)；代码 API 和所有绑定组件参见[运行时 API](/localization/api/)。

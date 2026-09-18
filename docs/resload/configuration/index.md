@@ -36,10 +36,10 @@
 
 ## 4. 自定义后端
 
-选择 `Custom` 后，需要提供自定义的配置 `ScriptableObject`，并实现对应的资源加载 Provider、初始化逻辑和构建流程。框架提供接入点，但不会假设第三方系统的具体实现。
+选择 `Custom` 后，需要提供自定义的配置 `ScriptableObject`，并实现对应的资源加载 Provider、初始化逻辑和构建流程。当前核心 `ResManager` 不会根据 `CustomBackendSettings` 自动创建 Provider，项目需要在自己的初始化代码中调用 `AddProvider` 完成注册。框架提供接入点，但不会假设第三方系统的具体实现。
 
 ## 5. 使用建议
 
 - 在项目早期确定唯一的主要构建型资源后端，避免同时维护多套发布流程；
 - 切换后端后，重新验证初始化、同步与异步加载、引用释放以及异常处理；
-- 后端配置完成后，继续阅读[资源加载概述](/resload/)和[资源插件系统](/resload/provider/)。
+- 后端配置完成后，继续阅读[基础使用](/resload/basic-usage/)；需要扩展资源来源时再阅读[资源插件系统](/resload/provider/)。
