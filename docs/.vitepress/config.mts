@@ -84,7 +84,9 @@ export default defineConfig({
         items: [
           { text: '输入系统概述（Overview）', link: '/input-system/' },
           { text: '输入系统配置（Configuration）', link: '/input-system/configuration/' },
-          { text: '基础使用（Basic Usage）', link: '/input-system/basic-usage/' },
+          { text: '全局设备检测（Device Detect）', link: '/input-system/device-detection/' },
+          { text: '新版输入系统（New Input）', link: '/input-system/new-input-system/' },
+          { text: '旧版输入系统（Legacy Input）', link: '/input-system/legacy-input-system/' },
           { text: '运行时 API 使用（API）', link: '/input-system/api/' }
         ]
       },

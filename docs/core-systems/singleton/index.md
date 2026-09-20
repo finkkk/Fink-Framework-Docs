@@ -91,7 +91,8 @@ public class ExampleManager : Singleton<ExampleManager>
 - `AudioManager`
 - `DeviceDetectionManager`
 - `EventManager`
-- `InputManager`
+- `NewInputManager`
+- `LegacyInputManager`
 - `PoolManager`
 - `ResManager`
 - `SaveManager`

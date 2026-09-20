@@ -184,12 +184,12 @@
 | 现象 | 原因与处理 |
 | --- | --- |
 | 设备类型一直是 `Unknown` | `CurrentDevice` 表示最近一次有效输入，而不是设备连接状态。先确认设备检测已启用，并产生了有效键盘、鼠标、手柄或触摸输入。 |
-| 已安装 Input System，但 `InputManager` 的按键事件没有触发 | 框架的 `InputManager` 主要负责 Unity Legacy Input Manager 的键鼠事件绑定；Input System Package 的 Action、Action Map 和重绑定应直接使用 Unity Input System API。 |
+| 已安装 Input System，但输入事件没有触发 | 先确认使用的是 `NewInputManager`，并已通过 `Initialize` 绑定 `InputActionAsset` 或 `PlayerInput`；如果项目强制关闭了新版输入系统，则应使用 `LegacyInputManager`。 |
 | 手柄切换后 UI 提示没有变化 | 使用 `DeviceDetectionManager.DeviceChanged` 或读取 `CurrentDevice` 更新提示。设备识别与具体输入监听是两套独立能力。 |
-| UI 导航和自定义键鼠事件互相影响 | 输入系统负责设备活动和基础键鼠事件，UI 系统负责焦点、导航、提交和返回。不要用 `InputManager` 直接替代 `UIManager` 的导航 API。 |
+| UI 导航和自定义输入事件互相影响 | 输入系统负责设备活动和游戏动作映射，UI 系统负责焦点、导航、提交和返回。不要用 `NewInputManager` 或 `LegacyInputManager` 直接替代 `UIManager` 的导航 API。 |
 | 事件绑定后重复触发 | 检查是否在多个生命周期重复注册，或者手动注册后没有在对应生命周期移除。跨模块广播建议使用事件系统的自动绑定工具。 |
 
-详细说明参见[输入系统概述](/input-system/)和[输入系统基础使用](/input-system/basic-usage/)。
+详细说明参见[输入系统概述](/input-system/)、[全局设备检测](/input-system/device-detection/)、[新版输入系统](/input-system/new-input-system/)和[旧版输入系统](/input-system/legacy-input-system/)。
 
 ---
 

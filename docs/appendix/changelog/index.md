@@ -4,6 +4,19 @@
 
 ---
 
+### v1.1.0 <span style="font-size:0.8em; color:gray; font-weight:normal;">— 2026-09-20</span>
+
+存档系统与输入系统优化
+
+- 新增 `SaveSlot<T>`，统一槽位存档的加载、保存、判断与备份修复。
+- 新增安全加载 API、加载状态和 `SaveLoadException<T>`，避免异常存档被默认数据覆盖。
+- 新增 `RepairAsync`；弃用 `CreateSlot`，槽位将在首次成功保存时自动创建。
+- 统一全局存档与槽位存档的失败处理语义，并兼容旧版加载 API。
+- 重构输入系统的改键、绑定查询、冲突检测与运行时资产管理。
+- 新增 `Warning` / `Strict` 两种冲突模式，简化改键调用；绑定持久化继续提供 PlayerPrefs 保底，并建议正式项目使用 Global 存档。
+
+---
+
 ### v1.0.0 <span style="font-size:0.8em; color:gray; font-weight:normal;">— 2026-09-16</span>
 
 正式版发布：稳定性收敛与工程体验完善

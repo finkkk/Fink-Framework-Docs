@@ -1,59 +1,53 @@
 # 输入系统概述
 
-本页介绍 Fink Framework 输入系统的组成、输入后端选择、设备类型检测和键鼠事件绑定方式，帮助你区分“识别当前使用的设备”和“监听具体输入行为”这两类功能。
-
-系统入口：设备类型检测使用 `DeviceDetectionManager.Instance`；需要注册键盘或鼠标按键事件时使用 `InputManager.Instance`。项目设置入口为 `Edit` → `Project Settings` → `Fink Framework` → `Input`。
-
-## 1. 系统组成
-
-输入系统包含两个相互独立的运行时能力：
-
-| 能力 | 入口 | 用途 |
-| --- | --- | --- |
-| 设备类型检测 | `DeviceDetectionManager` | 判断最近一次有效操作来自键鼠、手柄还是触摸 |
-| 键鼠事件绑定 | `InputManager` | 将键盘按键或鼠标按键映射为框架事件 |
-
-设备类型检测会根据项目最终启用的输入后端选择适配器：项目启用 Input System Package 时读取新输入系统设备；否则读取 Unity Legacy Input Manager。`InputManager` 的键鼠事件绑定依赖 Unity Legacy Input Manager，适合项目已经采用 `UnityEngine.Input` 的场景。
-
-## 2. 输入设备状态
-
-框架使用 `InputDeviceType` 表示最近一次有效操作的设备类别：
-
-| 值 | 含义 |
-| --- | --- |
-| `Unknown` | 尚未识别到有效输入，或设备检测已关闭 |
-| `KeyboardMouse` | 键盘按键、鼠标按键或符合阈值的鼠标移动 |
-| `Gamepad` | 手柄按键或摇杆首次越过激活阈值 |
-| `Touch` | 触摸按下或有效移动 |
-
-该状态表示“最近一次有效输入来自哪里”，不表示设备是否已连接。业务可以读取 `CurrentDevice`，也可以订阅 `DeviceChanged` 处理 UI 导航、提示图标或操作说明切换。
-
-## 3. 输入事件流
-
-`InputManager` 的事件流程如下：
+Fink Framework 输入系统由一层公共设备检测能力和两套输入映射后端组成：
 
 ```text
-键盘 / 鼠标输入
-      ↓
-InputManager 按 InputInfo 检测 Down / Up / Always
-      ↓
-EventManager.EventTrigger(eventType)
-      ↓
-业务代码注册的 UnityAction
+输入设备
+   ↓
+Unity Input System / Unity Legacy Input Manager
+   ├─ DeviceDetectionManager：识别最近使用的设备类型
+   ├─ NewInputManager：管理新版 Action 与 Binding
+   └─ LegacyInputManager：管理旧版键鼠绑定并触发框架事件
 ```
 
-这种方式不负责定义游戏动作本身。业务需要先选择一个 `Enum` 作为事件标识，再通过 `ChangeKeyboardInfo` 或 `ChangeMouseInfo` 配置对应按键。
+本模块的文档按以下顺序组织：
 
-## 4. 与 UI 系统的关系
+1. [输入系统配置](/input-system/configuration/)：配置设备检测、鼠标移动阈值、冲突策略和输入后端。
+2. [全局设备检测](/input-system/device-detection/)：读取当前主要设备，或监听设备类型变化。
+3. [新版输入系统](/input-system/new-input-system/)：使用 Unity Input System 的 `InputActionAsset`、Action Map、Binding Override 和交互式改键。
+4. [旧版输入系统](/input-system/legacy-input-system/)：使用 Unity `Input` API 管理键盘、鼠标绑定和框架事件。
+5. [运行时 API](/input-system/api/)：集中查询两套后端和公共类型的完整公开接口。
 
-输入系统负责提供设备活动和基础键鼠事件；UI 系统负责将输入转换为指针交互、键盘/手柄导航、提交、取消和返回行为。
+## 两套输入后端
 
-需要控制 UI 导航时，请使用 [UI 系统的输入与焦点 API](/ui-system/basic-usage/#返回与输入) 或 `UIManager.SetInputMode(...)`，不要直接通过 `InputManager` 控制 UI 面板。
+框架根据项目环境决定最终使用的输入后端：
 
-## 5. 使用建议
+| 后端 | 管理器 | 依赖 | 适合场景 |
+| --- | --- | --- | --- |
+| 新版 | `NewInputManager` | Unity Input System Package | 使用 `InputActionAsset`、多设备控制方案和跨平台改键 |
+| 旧版 | `LegacyInputManager` | Unity Legacy Input Manager | 只需要键盘、鼠标和基于 `Enum` 的轻量事件映射 |
 
-- 需要切换键鼠、手柄和触摸提示时，使用 `DeviceDetectionManager`；
-- 需要绑定确认、取消、攻击等离散键鼠行为时，使用 `InputManager` 与 `EventManager`；
-- 需要支持移动端或跨平台读取设备活动时，优先使用设备检测 API；
-- 需要使用 Input System Package 的 Action、Action Map 或重绑定工作流时，应直接使用 Unity Input System API，框架输入系统不替代完整的 Action 管理器。
+新版输入系统可用且没有被框架设置强制关闭时，`NewInputManager.IsActive` 为 `true`，`LegacyInputManager.IsActive` 为 `false`。没有安装新版输入系统，或在 Framework 设置中强制关闭新版输入系统时，情况相反。
 
+两套管理器不会同时处理同一套业务输入。业务代码应根据项目选择的后端使用对应管理器，不要在同一个行为上同时注册两套绑定。
+
+## 公共设备检测
+
+`DeviceDetectionManager` 不负责定义游戏动作，只记录最近一次有效输入来自哪一类设备：
+
+| `InputDeviceType` | 含义 |
+| --- | --- |
+| `Unknown` | 尚未检测到有效输入，或设备检测已关闭 |
+| `KeyboardMouse` | 键盘按键、鼠标按钮或符合阈值的鼠标移动 |
+| `Gamepad` | 手柄按钮或摇杆活动 |
+| `Touch` | 触摸按下或有效移动 |
+
+`CurrentDevice` 表示最近的操作来源，不表示设备是否连接。需要切换操作提示、控制器图标或 UI 交互模式时，应使用 [全局设备检测](/input-system/device-detection/) 中的接口。
+
+## 如何选择
+
+- 项目已经使用 `.inputactions`、`PlayerInput` 或 Action Map：使用 [新版输入系统](/input-system/new-input-system/)。
+- 项目只需要按键按下、抬起或持续按住，并希望用枚举触发 `EventManager`：使用 [旧版输入系统](/input-system/legacy-input-system/)。
+- 只需要判断玩家当前使用键鼠、手柄还是触摸：使用 [全局设备检测](/input-system/device-detection/)，不必注册输入映射。
+- 需要 UI 导航、焦点、提交和返回：使用 [UI 系统的输入与焦点 API](/ui-system/basic-usage/#返回与输入)，不要用输入映射管理器替代 UI 导航系统。

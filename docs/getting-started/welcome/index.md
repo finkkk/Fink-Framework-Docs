@@ -84,7 +84,7 @@ UniTask、Odin Serializer、Newtonsoft.Json 和 ExcelDataReader 已随发行包�
 ## 当前边界
 
 - 暂不支持 Unity 2021 以前的版本；
-- `InputManager` 负责基于 Unity 旧版 `Input` 系统的键鼠事件绑定，新版输入系统的绑定暂未实装；
+- 输入系统同时提供全局设备检测、`NewInputManager`（新版 Input System）和 `LegacyInputManager`（旧版 Input Manager）两套映射后端；
 - AssetBundle 部分负责运行时加载与引用管理，不包含打包、下载、版本管理或差分更新工具；
 - Addressables Provider 仅在项目已安装 Addressables 包时启用。
 
@@ -117,7 +117,6 @@ UniTask、Odin Serializer、Newtonsoft.Json 和 ExcelDataReader 已随发行包�
 
 ### 4. 使用工具类
 
-- [工具类总览（Utilities）](/utilities/)：集中查看日志、数学、文本、概率、Gizmos 和项目统计归档工具。
 - [日志工具（Log）](/utilities/log/)：统一日志格式、模块标签、日志等级和彩色输出，并支持 DebugMode 开关。
 - [数学工具（Math）](/utilities/math/)：提供范围处理、插值、距离、扇形检测、射线和 Overlap 等常用数学能力。
 - [文本工具（Texts）](/utilities/texts/)：处理字符串拆分、数字格式化、时间转换、命名转换和 Excel 数据清洗。
@@ -151,13 +150,21 @@ UniTask、Odin Serializer、Newtonsoft.Json 和 ExcelDataReader 已随发行包�
 - [Json.NET Converters（Wanzyee Studio）](https://assetstore.unity.com/packages/tools/input-management/json-net-converters-simple-compatible-solution-58621)
 - 所有分享 Unity 技术与开源成果的开发者
 
-## 开源协议与联系
+## 开源协议与联系方式
 
-本项目采用 [MIT License](https://github.com/finkkk/Fink-Framework/blob/main/LICENSE) 开源。
+本项目采用 [MIT License](LICENSE) 开源。
 
-- 博客：[finkkk.cn](https://finkkk.cn)
-- GitHub：[finkkk](https://github.com/finkkk)
-- QQ：2217183968
-- 微信：FLX2217183968
+如果你在使用过程中遇到问题，或希望讨论框架设计、模块扩展、贡献代码等内容，欢迎加入QQ群聊一起讨论：
 
-欢迎通过 GitHub Issues 提交问题、建议与功能讨论。
+- **QQ群：** 1125852721
+- **扫描二维码入群：**
+![QQ群二维码](/images/brand/qq.webp)
+
+也可以欢迎各位开发者添加框架作者的个人联系方式进行交流：
+
+- **QQ：** 2217183968
+- **微信：** FLX2217183968
+- **博客：** https://finkkk.cn
+- **GitHub：** https://github.com/finkkk
+
+你也可以在 GitHub Issue 区提交问题或建议，也可在博客文档下留言进行讨论。
