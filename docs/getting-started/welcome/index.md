@@ -152,7 +152,7 @@ UniTask、Odin Serializer、Newtonsoft.Json 和 ExcelDataReader 已随发行包�
 
 ## 开源协议与联系方式
 
-本项目采用 [MIT License](LICENSE) 开源。
+本项目采用 [MIT License](https://github.com/finkkk/Fink-Framework-Docs/blob/main/LICENSE) 开源。
 
 如果你在使用过程中遇到问题，或希望讨论框架设计、模块扩展、贡献代码等内容，欢迎加入QQ群聊一起讨论：
 
