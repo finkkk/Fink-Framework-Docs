@@ -95,7 +95,7 @@ public class ExampleManager : Singleton<ExampleManager>
 - `LegacyInputManager`
 - `PoolManager`
 - `ResManager`
-- `SaveManager`
+- `SavesManager`
 - `ScenesManager`
 - `TimerManager`
 - `UIManager`

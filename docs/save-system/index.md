@@ -1,16 +1,17 @@
 # 存档系统概述
 
-Fink Framework 的存档系统以 `SaveManager` 为统一入口，为游戏提供强类型数据保存、读取、槽位管理、全局存档、备份恢复和自动存档能力。
+Fink Framework 的存档系统以 `SavesManager` 为统一入口，为游戏提供强类型数据保存、读取、槽位管理、全局存档、备份恢复和自动存档能力。
 
-当前实现将职责拆成三层：
+当前实现由以下对象协作：
 
 | 组件 | 职责 |
 | --- | --- |
-| `SaveManager` | 管理槽位/全局作用域、串行队列、异步 API、恢复顺序和自动存档 |
+| `SavesManager` | 管理槽位/全局作用域、串行队列、异步 API、恢复顺序和自动存档 |
+| `SaveSlot<T>` | 绑定显式槽位，统一加载、保存、数据状态与备份修复 |
 | `SaveSchema` | 校验存档类型、创建默认实例、处理成员重命名兼容 |
 | `SaveFileStore` | 序列化容器、临时文件、回读校验、原子替换、备份轮换和文件解析 |
 
-运行时命名空间为 `FinkFramework.Runtime.Save`。`SaveManager` 是不继承 `MonoBehaviour` 的普通 C# 单例，不需要在场景中挂载对象；但它的构造和 Unity 资源配置读取仍应在 Unity 主线程完成。
+运行时命名空间为 `FinkFramework.Runtime.Save`。`SavesManager` 是不继承 `MonoBehaviour` 的普通 C# 单例，不需要在场景中挂载对象；但它的构造和 Unity 资源配置读取仍应在 Unity 主线程完成。
 
 项目配置入口：
 
@@ -26,7 +27,9 @@ Edit → Project Settings → Fink Framework → Save System
 | --- | --- |
 | 强类型存档 | 通过 `SaveAsync<T>` / `LoadAsync<T>` 使用明确的根数据类型 |
 | JSON 与 Binary | JSON 保存为可读裸 JSON；Binary 使用 FSV1 容器和 Odin Payload |
-| 单槽位与多槽位 | 单槽位固定使用 Slot 1；多槽位支持选择、创建、枚举和删除 |
+| 单槽位与多槽位 | 单槽位固定使用 Slot 1；多槽位支持选择、枚举和删除，首次成功保存时创建槽位 |
+| 安全便捷加载 | LoadOrCreateAsync / LoadGlobalOrCreateAsync 仅在缺档时返回默认数据，其他失败抛出异常 |
+| 显式修复 | `SaveSlot<T>.RepairAsync` 将已恢复的备份数据重新提交为主档 |
 | 全局存档 | 独立于玩家槽位，拥有自己的主档、备份和历史链 |
 | 快照保存 | 保存调用在第一次异步等待前完成 Schema 校验和序列化，冻结本次数据 |
 | 串行文件队列 | 同一主文件的保存、加载、删除和回档按顺序执行；不同目标互不阻塞 |
@@ -43,7 +46,7 @@ Edit → Project Settings → Fink Framework → Save System
 ```text
 游戏对象 / 运行时状态
         ↓ 业务层 Capture 为纯数据对象
-SaveManager.SaveAsync<T>()
+SavesManager.SaveAsync<T>()
         ↓ Schema 校验
         ↓ 序列化并冻结快照
 等待同一目标的保存队列
@@ -86,6 +89,10 @@ SaveResult
 如果主档存在但主档、即时备份和历史备份全部读取失败，系统不会静默伪造一份看似成功的数据，而是返回具体失败状态及最后一次读取异常。
 
 ---
+
+v1.1.0 新增 `HasUsableData`、`IsNew`、`NeedsUserAction` 和 `NeedsRepair`，用于区分首次启动、加载失败和备份恢复。安全便捷接口在取消时抛出 `OperationCanceledException`，其他加载失败抛出 `SaveLoadException<T>`；旧 `LoadOrDefaultAsync` / `LoadGlobalOrDefaultAsync` 已弃用，仍保留调用兼容，但不再静默返回默认数据。
+
+v1.1.2 起管理器名称为 `SavesManager`，旧 `SaveManager` 调用和类型引用需修改，命名空间仍是 `FinkFramework.Runtime.Save`。
 
 ## 4. 槽位数据与全局数据
 

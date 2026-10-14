@@ -8,7 +8,7 @@
 
 ## Main Surface
 
-UIManager 首次初始化时创建并注册 `UISurfaceId.Main`。Main Surface 包含框架默认的 MainCanvas：
+UIManager 首次初始化时创建并注册 `UISurfaceId.Main`。Main Surface 包含框架默认的 MainCanvas，也可以使用 UI Settings 指定的自定义 Main Canvas 预制体。缩放、排序与预制体层节点规则见 [UI 系统配置](/ui-system/configuration/)。其渲染模式为：
 
 - 屏幕项目通常使用 `ScreenSpaceCamera`；
 - 世界空间项目可以将 MainCanvas 设置为 `WorldSpace`；

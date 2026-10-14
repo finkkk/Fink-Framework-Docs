@@ -54,7 +54,7 @@ LogUtil.Warn(
     "资源缓存未找到");
 
 LogUtil.Error(
-    "SaveManager",
+    "SavesManager",
     "存档写入失败");
 ```
 

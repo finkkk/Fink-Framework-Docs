@@ -38,10 +38,10 @@ UIPanelKey = UIPanelId + UIInstanceId + UISurfaceId
 
 ## 2. 运行时根节点与 Main Surface
 
-首次创建 `UIManager` 时，`UIRuntimeRoot` 会通过资源系统加载并实例化框架内置资源：
+首次创建 `UIManager` 时，`UIRuntimeRoot` 会创建运行时根节点；默认资源通过资源系统加载，自定义 Main Canvas 则实例化配置中指定的预制体：
 
-- 非 VR 环境：创建框架 UI Camera；
-- 所有环境：创建框架 `MainCanvas`；
+- Main Surface 解析为 ScreenSpaceCamera 时：创建框架 UI Camera；
+- 所有环境：创建框架 `MainCanvas`，或实例化自定义 Main Canvas 预制体；
 - 当前场景没有 `EventSystem` 时：按环境选择 Legacy Input、Input System 或 XR EventSystem 预制体；
 - Camera、MainCanvas 和 EventSystem 都设置为跨场景对象；
 - MainCanvas 注册为 `UISurfaceId.Main`，并且是持久级 Surface。
@@ -55,6 +55,8 @@ Main Surface 的渲染模式由 `Project Settings > Fink Framework > UI Settings
 | `Auto` | VR 使用 `WorldSpace`，非 VR 使用 `ScreenSpaceCamera` |
 
 这里的“屏幕 UI”不是 `ScreenSpaceOverlay`，而是由框架 UI Camera 输出的 `ScreenSpaceCamera` Canvas。
+
+v1.1.3 起支持在 UI Settings 中配置默认 Main Canvas 的缩放、参考分辨率、屏幕适配、像素对齐与排序，也可指定自定义预制体，复用已有层并补齐缺失层。具体生效范围、预制体要求和恢复默认设置见 [UI 系统配置](/ui-system/configuration/)。
 
 ## 3. Surface：面板的挂载表面
 

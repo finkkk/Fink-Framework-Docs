@@ -6,7 +6,7 @@
 Assets/FinkFramework_Assets/Resources/FinkFramework/Settings/Global/GlobalSettingsAsset.asset
 ```
 
-运行时由 `GlobalSettingsRuntimeLoader` 加载这份资源。请保留资源路径和文件名，否则 `SaveManager` 无法初始化。
+运行时由 `GlobalSettingsRuntimeLoader` 加载这份资源。请保留资源路径和文件名，否则 `SavesManager` 无法初始化。
 
 ## 1. 存档数据格式
 
@@ -45,7 +45,7 @@ Assets/FinkFramework_Assets/Resources/FinkFramework/Settings/Global/GlobalSettin
 
 关闭多槽位并不会删除其他槽位文件。重新开启后，原有文件仍可被枚举和加载。
 
-`CreateSlot` 只确保共享 `slot` 目录存在，不会创建空主档。槽位会在第一次成功调用 `SaveAsync(data, slotId)` 后真正出现于 `GetSlots()` 结果中。
+`CreateSlot` 已弃用，仅保留目录准备兼容行为，不会创建空主档，新代码不需要调用。`OpenSlot<T>` 和缺档加载同样不会创建文件。槽位会在第一次成功调用 `SaveAsync(data, slotId)` 后真正出现于 `GetSlots()` 结果中。
 
 当前默认值为：
 

@@ -3,7 +3,7 @@
 旧版输入系统对应 Unity Legacy Input Manager，运行时入口是：
 
 ```csharp
-FinkFramework.Runtime.LegacyInput.LegacyInputManager
+FinkFramework.Runtime.Input.LegacyInput.LegacyInputManager
 ```
 
 它使用 `UnityEngine.Input` 轮询键盘和鼠标，将逻辑行为枚举映射到 `EventManager` 事件。旧版管理器不负责手柄按键映射，也不使用 Unity Input System 的 Action Map。
@@ -13,7 +13,7 @@ FinkFramework.Runtime.LegacyInput.LegacyInputManager
 旧版管理器在项目最终选择 Legacy Input Manager 时才会工作：
 
 ```csharp
-using FinkFramework.Runtime.LegacyInput;
+using FinkFramework.Runtime.Input.LegacyInput;
 
 if (!LegacyInputManager.Instance.IsActive)
 {
@@ -40,7 +40,7 @@ public enum GameInputAction
 在启动阶段注册默认绑定：
 
 ```csharp
-using FinkFramework.Runtime.LegacyInput;
+using FinkFramework.Runtime.Input.LegacyInput;
 using UnityEngine;
 
 LegacyInputManager manager = LegacyInputManager.Instance;

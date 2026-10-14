@@ -45,7 +45,7 @@ public enum InputConflictMode
 
 ## 新版输入系统 API
 
-命名空间：`FinkFramework.Runtime.InputSystem`
+命名空间：`FinkFramework.Runtime.Input.InputSystem`
 
 ### `NewInputManager` 状态和事件
 
@@ -166,7 +166,7 @@ Failed                  执行失败
 
 ## 旧版输入系统 API
 
-命名空间：`FinkFramework.Runtime.LegacyInput`
+命名空间：`FinkFramework.Runtime.Input.LegacyInput`
 
 ### `LegacyInputManager` 状态
 

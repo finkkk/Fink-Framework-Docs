@@ -1,12 +1,13 @@
 # 场景切换系统（Scene）
 
-`ScenesManager` 是 Fink Framework 对 Unity 场景切换 API 的轻量封装，统一提供按名称或 Build Settings 索引加载场景的入口，并在真正切换前执行框架级清理。
+`ScenesManager` 是 Fink Framework 对 Unity 场景切换 API 的轻量封装，统一提供按名称或 Build Settings 索引加载场景的入口，并在普通单场景切换前执行框架级清理；同时提供以场景实例句柄管理的叠加加载与卸载。
 
 当前模块刻意保持职责简单：
 
 - 提供同步场景切换；
 - 提供异步场景切换，并直接返回 Unity 的 `AsyncOperation`；
-- 提供场景切换前事件；
+- 提供叠加加载、活动场景设置和按句柄卸载；
+- 提供普通场景切换前事件；
 - 在切换前清理音频、对象池、场景级 UI、事件和资源缓存。
 
 它不负责自定义进度条、加载状态机、并发请求锁、参数传递或 Loading UI。需要这些能力时，应由上层流程代码基于返回的 `AsyncOperation` 自行组织。
@@ -138,7 +139,7 @@ ScenesManager.Instance.OnBeforeSceneLoad -= BeforeSceneLoad;
 
 ## 5. 场景切换前清理
 
-每个同步或异步切换入口都会执行相同的清理流程，不需要业务代码重复调用：
+普通单场景切换入口 `LoadScene` / `LoadSceneAsync` 都会执行以下清理流程，不需要业务代码重复调用。叠加加载和卸载不执行这套全局清理：
 
 ```text
 AudioManager.TryGetInstance()?.ClearSound()
@@ -204,7 +205,92 @@ public class SceneFlow
 
 如果 Loading UI 需要跨场景保留，应由业务将它放在持久化对象或持久级 UI Surface 中，并自行处理场景加载前后的显示状态。
 
-## 7. 使用建议
+## 7. 叠加场景加载与卸载
+
+v1.1.2 新增以下 API，位于 `FinkFramework.Runtime.Scene` 命名空间。与普通切换返回 `AsyncOperation` 不同，叠加接口返回 `System.Threading.Tasks.Task`：
+
+```csharp
+public Task<SceneHandle> LoadAdditiveAsync(
+    string sceneName,
+    CancellationToken cancellationToken = default);
+
+public bool SetActiveScene(SceneHandle handle);
+
+public Task UnloadAsync(
+    SceneHandle handle,
+    SceneCleanupOptions options,
+    CancellationToken cancellationToken = default);
+```
+
+### 加载与活动场景
+
+`LoadAdditiveAsync` 以 Additive 模式加载，不卸载已有场景，不触发 `OnBeforeSceneLoad`，也不执行全局音频、对象池、事件或资源缓存清理。加载成功后，框架会将新场景设为活动场景，再返回代表本次加载实例的句柄。
+
+需要切换到另一个已加载的场景时，可以调用 `SetActiveScene(handle)`。活动场景与场景是否加载是不同概念；调用方应自行管理多个场景之间的业务流程。
+
+### SceneHandle
+
+| 属性 | 类型 | 含义 |
+| --- | --- | --- |
+| `Scene` | `UnityEngine.SceneManagement.Scene` | 本次加载得到的 Unity 场景实例 |
+| `Name` | `string` | 场景名 |
+| `InstanceId` / `Handle` | `int` | 同一个 Unity 场景实例句柄值 |
+| `IsLoaded` | `bool` | 场景是否仍有效且已加载 |
+
+卸载时保存并传入对应 `SceneHandle`，不要仅靠场景名识别实例。空句柄会抛出 `ArgumentNullException`；设置活动场景或卸载已失效句柄会抛出 `InvalidOperationException`。
+
+### 局部清理与 SceneCleanupOptions
+
+`UnloadAsync` 先关闭该场景的场景级 UI，再卸载句柄对应的 Unity 场景，最后按选项执行内存整理。它不会清空全局事件、对象池、音频或资源缓存。业务持有的事件订阅、实体、计时器和资源引用应在调用前自行释放。
+
+| 选项 | 卸载后的行为 |
+| --- | --- |
+| `None` / `Default` | 只做场景级 UI 清理和场景卸载 |
+| `ReleaseUnusedAssets` | 额外请求释放未使用资源 |
+| `ReleaseUnusedAssetsAndCollectGarbage` | 额外释放未使用资源，并在非 Editor 环境执行 GC |
+
+也可以用 `new SceneCleanupOptions(unloadUnusedAssets: true, collectGarbage: false)` 组合选项。`UnloadAsync` 的 `options` 参数必须显式传入。
+
+卸载时应保留至少一个其他已加载场景，例如常驻启动场景；不能依赖此接口卸载 Unity 中最后一个已加载场景。若后续逻辑依赖某个活动场景，可在卸载前对另一个有效句柄调用 `SetActiveScene`。
+
+### 完整示例
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using FinkFramework.Runtime.Scene;
+
+public sealed class AdditiveSceneFlow
+{
+    private SceneHandle loadedScene;
+
+    public async Task LoadAsync(CancellationToken cancellationToken)
+    {
+        loadedScene = await ScenesManager.Instance.LoadAdditiveAsync(
+            "GameScene", cancellationToken);
+        // GameScene 现在已经是活动场景。
+    }
+
+    public async Task UnloadAsync(CancellationToken cancellationToken)
+    {
+        if (loadedScene == null || !loadedScene.IsLoaded)
+            return;
+
+        // 在这里先释放业务自己持有的事件、计时器和资源引用。
+        await ScenesManager.Instance.UnloadAsync(
+            loadedScene, SceneCleanupOptions.Default, cancellationToken);
+        loadedScene = null;
+    }
+}
+```
+
+### 取消与异常
+
+空白场景名会抛出 `ArgumentException`；无法启动操作、无法定位加载实例或无法设置活动场景时会抛出 `InvalidOperationException`。调用方还应处理 Unity 场景 API 抛出的加载错误。
+
+取消通过 `OperationCanceledException` 报告。Unity 已启动的底层加载不能真正中止：在等待加载时取消，框架会安排加载结束后卸载本次产生的场景；这项补偿卸载可能晚于取消异常返回。已经开始的底层卸载也不会被取消令牌撤销，取消后不要假定场景仍存在，应检查句柄状态。框架不提供并发请求锁，业务流程应避免对同一场景同时发起相互冲突的加载与卸载。
+
+## 8. 使用建议
 
 - 场景名和索引必须对应 Build Settings 中的场景；
 - 轻量场景可以使用同步接口，复杂场景和带 Loading UI 的流程建议使用异步接口；

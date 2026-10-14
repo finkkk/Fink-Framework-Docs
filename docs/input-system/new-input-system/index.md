@@ -3,7 +3,7 @@
 新版输入系统对应 Unity Input System Package，运行时入口是：
 
 ```csharp
-FinkFramework.Runtime.InputSystem.NewInputManager
+FinkFramework.Runtime.Input.InputSystem.NewInputManager
 ```
 
 它围绕 `InputActionAsset` 管理 Action Map、Action、Binding Override、交互式改键、冲突检测和绑定持久化。
@@ -19,7 +19,7 @@ FinkFramework.Runtime.InputSystem.NewInputManager
 可以先检查当前后端：
 
 ```csharp
-using FinkFramework.Runtime.InputSystem;
+using FinkFramework.Runtime.Input.InputSystem;
 
 if (!NewInputManager.Instance.IsActive)
 {
@@ -34,7 +34,7 @@ if (!NewInputManager.Instance.IsActive)
 
 ```csharp
 using FinkFramework.Runtime.Input;
-using FinkFramework.Runtime.InputSystem;
+using FinkFramework.Runtime.Input.InputSystem;
 using UnityEngine.InputSystem;
 
 public sealed class GameInputBootstrap
@@ -64,7 +64,7 @@ if (result == NewInputBindingResult.Success)
 ### 使用 PlayerInput
 
 ```csharp
-using FinkFramework.Runtime.InputSystem;
+using FinkFramework.Runtime.Input.InputSystem;
 using UnityEngine.InputSystem;
 
 NewInputBindingResult result = NewInputManager.Instance.Initialize(playerInput);
@@ -110,7 +110,7 @@ if (manager.TryGetAction("Gameplay/Jump", out InputAction jump))
 ```csharp
 using System;
 using System.Collections.Generic;
-using FinkFramework.Runtime.InputSystem;
+using FinkFramework.Runtime.Input.InputSystem;
 
 IReadOnlyList<NewInputBindingInfo> bindings =
     NewInputManager.Instance.GetBindings("Gameplay/Jump");
@@ -179,7 +179,7 @@ NewInputBindingResult startResult = manager.StartRebind(
 
 ```csharp
 using FinkFramework.Runtime.Input;
-using FinkFramework.Runtime.InputSystem;
+using FinkFramework.Runtime.Input.InputSystem;
 
 manager.StartRebind(
     actionId,

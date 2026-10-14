@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/github/license/finkkk/Fink-Framework?style=flat-square&cacheSeconds=0" alt="License">
 </div>
 
-<p align="center"><em>文档更新日期：<strong>2026.9.16</strong></em></p>
+<p align="center"><em>文档更新日期：<strong>2026.10.14</strong></em></p>
 
 ## 框架简介
 
@@ -112,7 +112,7 @@ UniTask、Odin Serializer、Newtonsoft.Json 和 ExcelDataReader 已随发行包�
 - [生命周期系统（Mono）](/core-systems/mono/)：为普通类统一提供 Update、FixedUpdate、LateUpdate 与 Gizmos 回调。
 - [定时系统（Timer）](/core-systems/timer/)：提供普通计时、真实计时、一次性计时和循环计时，并支持暂停、恢复与移除。
 - [音效系统（Audio）](/core-systems/audio/)：统一播放背景音乐与音效，通过 Mixer、异步加载和对象池管理音频资源。
-- [场景切换系统（Scene）](/core-systems/scene/)：提供按名称或索引的同步、异步场景切换，以及切换前清理和生命周期事件。
+- [场景切换系统（Scene）](/core-systems/scene/)：提供普通场景切换、叠加场景加载、活动场景管理与按句柄卸载，以及对应清理策略。
 - [事件系统（Event）](/core-systems/event/)：基于枚举事件标识，支持无参数、单参数、双参数事件和自动绑定解绑。
 
 ### 4. 使用工具类

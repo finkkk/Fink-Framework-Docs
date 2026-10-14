@@ -2,11 +2,11 @@
 
 本页列出存档系统对业务开放的运行时 API。入口位于 `FinkFramework.Runtime.Save` 命名空间，异步接口返回 Cysharp UniTask 的 `UniTask<T>`。
 
-## 1. SaveManager 状态
+## 1. SavesManager 状态
 
 | API | 类型 | 说明 |
 | --- | --- | --- |
-| `SaveManager.Instance` | `SaveManager` | 获取存档管理器单例 |
+| `SavesManager.Instance` | `SavesManager` | 获取存档管理器单例 |
 | `RootPath` | `string` | 存档根目录的绝对路径 |
 | `CurrentSlotId` | `int` | 无槽位参数 API 当前使用的槽位 |
 | `MultiSlotMode` | `bool` | 是否启用多槽位配置 |
@@ -45,6 +45,11 @@ public UniTask<LoadResult<T>> LoadAsync<T>(
     int slotId,
     CancellationToken cancellationToken = default);
 
+public UniTask<T> LoadOrCreateAsync<T>(
+    int slotId,
+    CancellationToken cancellationToken = default);
+
+// 以下为已弃用的兼容接口，新代码请使用 LoadOrCreateAsync 或 OpenSlot。
 public UniTask<T> LoadOrDefaultAsync<T>(
     CancellationToken cancellationToken = default);
 
@@ -55,7 +60,9 @@ public UniTask<T> LoadOrDefaultAsync<T>(
 
 无 `slotId` 重载使用 `CurrentSlotId`。单槽位模式只接受 Slot 1；多槽位模式接受任意大于 0 的编号。
 
-`LoadAsync` 会保留完整状态和恢复来源。`LoadOrDefaultAsync` 在任何未获得可用数据的结果下创建默认实例，适合明确接受静默回退的业务。
+`LoadAsync` 会保留完整状态和恢复来源。推荐使用 `LoadOrCreateAsync<T>(int slotId, CancellationToken cancellationToken = default)` 直接取得数据；该接口必须显式指定槽位编号，没有无槽位参数重载。只有缺档才返回默认实例，取消抛出 `OperationCanceledException`，其他加载失败抛出 `SaveLoadException<T>`。
+
+上面列出的旧 `LoadOrDefaultAsync` 重载均已弃用，仍保留调用兼容并转发到安全加载，不再静默回退默认值。
 
 取消令牌可以取消队列等待和提交前工作。一旦进入原子文件替换阶段，操作会完成提交或清理，不会在中途留下半写入主档。
 
@@ -69,18 +76,26 @@ public UniTask<SaveResult> SaveGlobalAsync<T>(
 public UniTask<LoadResult<T>> LoadGlobalAsync<T>(
     CancellationToken cancellationToken = default);
 
+// 已弃用的兼容接口，新代码请使用 LoadGlobalOrCreateAsync。
 public UniTask<T> LoadGlobalOrDefaultAsync<T>(
     CancellationToken cancellationToken = default);
 ```
 
-全局存档不使用槽位编号，主文件名为 `global_save` 加当前格式扩展名。
+全局存档不使用槽位编号，主文件名为 `global_save` 加当前格式扩展名。推荐使用以下安全便捷接口，其失败和取消语义与槽位安全加载相同：
+
+```csharp
+public UniTask<T> LoadGlobalOrCreateAsync<T>(
+    CancellationToken cancellationToken = default);
+```
+
+旧 `LoadGlobalOrDefaultAsync` 已弃用，保留调用兼容但不再静默返回默认数据。
 
 ## 5. 槽位管理
 
 | API | 返回值 | 说明 |
 | --- | --- | --- |
 | `SelectSlot(int slotId)` | `bool` | 选择无参数 API 使用的当前槽位；不会创建文件 |
-| `CreateSlot(int slotId)` | `SaveResult` | 准备共享槽位目录；不会创建空主档 |
+| `CreateSlot(int slotId)` | `SaveResult` | 已弃用：仅准备共享槽位目录；新代码直接首次保存 |
 | `DeleteSlotAsync(int, CancellationToken)` | `UniTask<SaveResult>` | 删除目标槽位全部当前及旧版文件 |
 | `SlotExists(int slotId)` | `bool` | 检查当前或旧版主档是否存在 |
 | `GetSlots()` | `IReadOnlyList<SaveSlotInfo>` | 枚举已有主档并按槽位编号升序排列 |
@@ -96,6 +111,8 @@ public UniTask<T> LoadGlobalOrDefaultAsync<T>(
 | `Generation` | `long` | Binary 容器提交代数；裸 JSON 为 0 |
 | `LastSavedUtc` | `DateTime` | 最近保存 UTC 时间；JSON 使用文件写入时间 |
 | `Path` | `string` | 主档绝对路径 |
+
+`OpenSlot<T>(int slotId)` 返回 `SaveSlot<T>`，不修改当前槽位，也不创建文件。槽位会在首次成功保存后创建。
 
 ## 6. 历史与回档
 
@@ -164,13 +181,15 @@ public IDisposable StartGlobalAutoSave<T>(
 典型处理方式：
 
 ```csharp
-SaveResult result = await SaveManager.Instance.SaveAsync(data);
+SaveResult result = await SavesManager.Instance.SaveAsync(data);
 if (!result.Succeeded)
 {
     UnityEngine.Debug.LogError(
         $"{result.Status}: {result.Message}\n{result.Exception}");
 }
 ```
+
+`SaveResult.NeedsUserAction` 为 `!Succeeded && Status != Cancelled`，可用于判断是否需要报告失败。
 
 ## 9. LoadResult&lt;T&gt;
 
@@ -185,6 +204,15 @@ if (!result.Succeeded)
 | `Succeeded` | `bool` | `Success` 或 `FileNotFound` 时为 `true` |
 | `UsedDefault` | `bool` | 数据来源是否为 `Default` |
 | `Recovered` | `bool` | 是否从 `Backup` 或 `History` 恢复 |
+
+新增加载状态属性：
+
+| 属性 | 类型 | 说明 |
+| --- | --- | --- |
+| `HasUsableData` | `bool` | 等同 Succeeded，含缺档默认数据 |
+| `IsNew` | `bool` | Status 是否为 FileNotFound |
+| `NeedsUserAction` | `bool` | 失败且非取消时为 true |
+| `NeedsRepair` | `bool` | 等同 Recovered，表示从备份或历史恢复后建议显式提交修复 |
 
 ### SaveDataSource
 
@@ -265,3 +293,25 @@ FinkFramework_Save/Global/global.backup.save
 ```
 
 当前路径不存在但旧版主档或备份存在时，加载会使用旧版路径。新项目应使用当前扁平命名结构，不要再主动创建旧版目录。
+
+## 13. SaveSlot&lt;T&gt;
+
+通过 `SavesManager.Instance.OpenSlot<T>(slotId)` 创建。`OpenSlot` 本身不验证编号；单槽位使用 1，多槽位编号应大于 0，具体操作通过结果报告参数错误。
+
+| 成员 | 类型 / 返回值 | 说明 |
+| --- | --- | --- |
+| `SlotId` | `int` | 创建时绑定的槽位编号 |
+| `Data` / `HasData` | `T` / `bool` | 最近一次成功加载或保存的数据，以及是否已有可用数据 |
+| `LastLoad` / `LastSave` | `LoadResult<T>` / `SaveResult` | 最近一次加载、保存结果，尚未调用时为 null |
+| `Exists` | `bool` | 当前或兼容旧版主档是否存在 |
+| `LoadAsync(CancellationToken = default)` | `UniTask<LoadResult<T>>` | 返回完整结果；失败时保留之前的 Data / HasData |
+| `LoadOrCreateAsync(CancellationToken = default)` | `UniTask<T>` | 缺档返回默认数据，其他失败或取消抛出对应异常 |
+| `SaveAsync(T data, CancellationToken = default)` | `UniTask<SaveResult>` | 提交成功后更新 Data / HasData |
+| `SaveAsync(CancellationToken = default)` | `UniTask<SaveResult>` | 保存已有 Data；没有数据时返回 InvalidArgument |
+| `RepairAsync(CancellationToken = default)` | `UniTask<SaveResult>` | 提交最近一次备份恢复的 LastLoad.Data，否则返回 InvalidArgument |
+
+加载默认数据不会创建主档，也不会自动保存。`RepairAsync` 是显式保存操作：业务应先完成版本迁移，检查返回结果；替换整个数据对象时使用 `SaveAsync(newData)`。
+
+## 14. SaveLoadException&lt;T&gt;
+
+安全便捷加载在无法获得可用数据且不是取消时抛出此异常，`Result` 属性提供完整的 `LoadResult<T>`。适用于管理器的 `LoadOrCreateAsync`、`LoadGlobalOrCreateAsync`、兼容旧加载方法，以及 `SaveSlot<T>.LoadOrCreateAsync`。取消单独抛出 `OperationCanceledException`；需要结果式处理时使用 `LoadAsync` / `LoadGlobalAsync`。

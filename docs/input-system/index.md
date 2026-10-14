@@ -51,3 +51,7 @@ Unity Input System / Unity Legacy Input Manager
 - 项目只需要按键按下、抬起或持续按住，并希望用枚举触发 `EventManager`：使用 [旧版输入系统](/input-system/legacy-input-system/)。
 - 只需要判断玩家当前使用键鼠、手柄还是触摸：使用 [全局设备检测](/input-system/device-detection/)，不必注册输入映射。
 - 需要 UI 导航、焦点、提交和返回：使用 [UI 系统的输入与焦点 API](/ui-system/basic-usage/#返回与输入)，不要用输入映射管理器替代 UI 导航系统。
+
+## v1.1.2 命名空间迁移
+
+公共设备检测与冲突模式仍在 `FinkFramework.Runtime.Input`。新版后端统一使用 `FinkFramework.Runtime.Input.InputSystem`，旧版后端统一使用 `FinkFramework.Runtime.Input.LegacyInput`。升级时请同步调整业务代码的 using 和完整类型名；这次修正不改变 v1.1.0 引入的改键、绑定查询、冲突检测及持久化用法。
