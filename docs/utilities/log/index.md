@@ -13,8 +13,9 @@
 | `Success` | `Debug.Log` | DebugMode 关闭时默认不输出 | 绿色模块标签和 `✓` |
 | `Warn` | `Debug.LogWarning` | 默认强制输出 | 橙色模块标签和 `!` |
 | `Error` | `Debug.LogError` | 始终输出 | 红色模块标签和 `✗` |
+| `LogException` | `Debug.LogException` | 始终输出原始异常 | Unity 原生异常格式 |
 
-所有日志都会带有模块标签：
+除 `LogException` 使用 Unity 原生异常格式外，以上文本日志都会带有模块标签：
 
 ```text
 [DataFilesUtil] 已初始化本地数据
@@ -58,7 +59,7 @@ LogUtil.Error(
     "存档写入失败");
 ```
 
-所有日志级别都同时提供自动模块名和显式模块名两种重载。
+`Log`、`Info`、`Success`、`Warn`、`Error` 都提供自动模块名和显式模块名两种重载；`LogException` 接收原始异常和可选的 Unity 对象，不接收模块名。
 
 ## 4. DebugMode 与 force
 
@@ -108,6 +109,31 @@ LogUtil.Error(
     "DataLoader",
     "关键数据读取失败");
 ```
+
+### 4.4 LogException（v1.1.4）
+
+需要保留异常类型、调用堆栈和内部异常时，使用：
+
+```csharp
+public static void LogException(
+    System.Exception exception,
+    UnityEngine.Object context = null);
+```
+
+例如在 `MonoBehaviour` 中捕获异常并关联当前组件：
+
+```csharp
+try
+{
+    await UIManager.Instance.OpenAsync<SettingsPanel>();
+}
+catch (System.Exception exception)
+{
+    LogUtil.LogException(exception, this);
+}
+```
+
+`context` 可省略；传入组件、GameObject 或其他 Unity 对象后，便于从 Console 定位关联对象。该接口直接调用 `Debug.LogException`，不包装、不重新抛出异常，也不添加彩色模块标签或受 DebugMode 过滤。只有传播到调用方的异常才会进入上面的 `catch`；UIManager 自行处理的加载失败仍需检查返回值和 Console 日志。
 
 ## 5. 自动识别模块名
 

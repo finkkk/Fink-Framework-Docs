@@ -8,13 +8,15 @@
 
 ## 创建一个面板
 
-面板由 `BasePanel` 脚本和对应的 uGUI 预制体组成。假设面板类型为 `SettingsPanel`：
+面板由 `BasePanel` 脚本和对应的 uGUI 预制体组成。默认 Resources 来源下，假设面板类型为 `SettingsPanel`：
 
 ```text
 脚本：Assets/<脚本根目录>/UI/Panels/SettingsPanel.cs
 预制体：Assets/<Resources 目录>/UI/Panels/SettingsPanel.prefab
 资源路径：res://UI/Panels/SettingsPanel
 ```
+
+v1.1.4 起可在 UI Settings 中切换加载来源。跟随 Addressables 后端时，预制体默认生成到 `Assets/GameAssets/UI/Panels/`，Address 为 `SettingsPanel`，运行时地址为 `addr://SettingsPanel`；业务仍调用 `OpenAsync<SettingsPanel>()`。其他来源见 [面板加载来源](/ui-system/configuration/#面板加载来源)。
 
 预制体根节点必须挂载 `SettingsPanel : BasePanel`。C# 类型名、预制体文件名和根节点脚本类型需要保持一致。
 
@@ -131,7 +133,20 @@ await UIManager.Instance.PreloadAsync<SettingsPanel>();
 await UIManager.Instance.OpenAsync<SettingsPanel>();
 ```
 
-同步预加载和同步打开要求资源 Provider 支持同步加载。异步 API 适合需要异步资源后端的项目。
+同步首次加载支持 Resources。Addressables 只有在全局资源后端选择 Addressables 且开启 `Allow Sync Load` 后，才允许同步 `Preload<T>()`；AssetBundle 和其他自定义协议应使用 `PreloadAsync<T>()`。
+
+非 Resources 面板的同步 `Open<T>()` 需要先完成预加载，且使用相同的 Surface 和 InstanceId。即使允许 Addressables 同步预加载，也不能跳过预加载直接同步首次打开：
+
+```csharp
+var options = UIOpenOptions.Default;
+var panel = await UIManager.Instance.PreloadAsync<SettingsPanel>(options);
+if (panel != null)
+{
+    UIManager.Instance.Open<SettingsPanel>(options);
+}
+```
+
+如果不需要分开预加载和显示，直接使用 `await UIManager.Instance.OpenAsync<SettingsPanel>()`。
 
 预加载得到的实例仍然处于隐藏状态，不会进入 Page 栈，也不会触发 `OnEnter`。第一次真正打开时，系统才根据 `UIOpenOptions` 处理挂载层、显示模式、焦点和页面导航。
 

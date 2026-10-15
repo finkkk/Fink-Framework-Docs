@@ -8,9 +8,9 @@
 
 | API | 返回值 | 说明 |
 | --- | --- | --- |
-| `Preload<T>()` | `T` | 同步加载并保持隐藏 |
+| `Preload<T>()` | `T` | 同步预加载；首次支持 Resources 或允许同步加载的 Addressables |
 | `PreloadAsync<T>()` | `UniTask<T>` | 异步加载并保持隐藏 |
-| `Open<T>()` | `T` | 同步加载并打开 |
+| `Open<T>()` | `T` | 同步打开；非 Resources 来源须先完成预加载 |
 | `OpenAsync<T>()` | `UniTask<T>` | 异步加载并打开 |
 | `Open<T, TArgs>(args)` | `T` | 同步打开并注入参数 |
 | `OpenAsync<T, TArgs>(args)` | `UniTask<T>` | 异步打开并注入参数 |
@@ -23,10 +23,18 @@
 | --- | --- | --- |
 | 首次打开并立即显示 | `OpenAsync<T>()` | 等待资源、实例和进入过渡完成 |
 | 预先准备资源 | `PreloadAsync<T>()` | 完成实例化和初始化，但保持隐藏 |
-| Provider 支持同步加载 | `Open<T>()` / `Preload<T>()` | 在当前调用中完成操作 |
+| Resources 首次同步加载 | `Open<T>()` / `Preload<T>()` | 在当前调用中完成操作 |
+| Addressables 首次同步预加载 | `Preload<T>()` | 全局后端须为 Addressables，且开启 `Allow Sync Load` |
+| 非 Resources 面板同步打开 | 预加载完成后调用 `Open<T>()` | 复用相同 Surface / InstanceId 下的已加载实例 |
 | 需要传入业务数据 | `OpenAsync<T, TArgs>(args)` | 在 `OnEnter` 前调用 `ApplyArgs` |
 
-同步 API 适合已确认支持同步加载的资源 Provider。需要等待异步资源时，使用 `UniTask` 版本；调用方传入的 `CancellationToken` 只取消本次等待，不会取消其他调用方共享的底层加载任务。
+UI 层对同步首次加载有额外限制：AssetBundle 和其他自定义协议不支持同步首次预加载；Addressables 开启 `Allow Sync Load` 也不允许用 `Open<T>()` 直接首次加载。预加载未完成、返回 `null` 或 Surface / InstanceId 不一致时，同步打开不能复用目标实例，会记录错误并返回 `null`。
+
+需要等待异步资源时，使用 `UniTask` 版本；调用方传入的 `CancellationToken` 只取消本次等待，不会取消其他调用方共享的底层加载任务。
+
+### 自定义面板地址
+
+`CustomPanelAssetPathResolver` 类型为 `Func<Type, string>`，用于 UI 加载来源为 `Custom` 或跟随 `Custom` 资源后端时，将面板类型转换为完整资源地址。首次加载前设置解析器，并通过 `ResManager.Instance.AddProvider(...)` 注册对应协议 Provider。完整配置见 [面板加载来源](/ui-system/configuration/#面板加载来源)。
 
 ### 预加载与打开的区别
 

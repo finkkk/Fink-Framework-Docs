@@ -64,8 +64,11 @@
 
 | 现象 | 原因与处理 |
 | --- | --- |
-| `Open<T>` 或 `OpenAsync<T>` 返回 `null` | 检查面板脚本是否继承 `BasePanel`、预制体根节点是否挂载了对应脚本、预制体名称是否与类型名一致、资源是否位于 UI Settings 配置的 `Resources` 目录，以及 Console 中是否存在编译错误。 |
-| 面板预制体存在，但同步打开失败 | 同步 API 要求底层 Provider 支持同步加载。如果资源正在异步加载或后端只支持异步，改用 `OpenAsync<T>`。 |
+| `Open<T>` 或 `OpenAsync<T>` 返回 `null` | 检查面板继承 `BasePanel` 且脚本挂在预制体根节点、名称与类型一致，并按 UI Settings 加载来源检查 Resources 目录、Addressables Address、AssetBundle 包名或自定义解析器 / Provider；结合 Console 定位错误。 |
+| 面板预制体存在，但同步打开失败 | 非 Resources 的 `Open<T>()` 只复用已加载实例。先等待 `PreloadAsync<T>()` 完成且返回非 `null`，使用相同 Surface / InstanceId 打开；也可直接用 `OpenAsync<T>()`。正在异步加载时，同步接口不会等待。 |
+| Addressables 已开启 Allow Sync Load，仍不能直接同步打开 | 该配置允许同步 `Preload<T>()`，不允许 `Open<T>()` 首次加载。全局后端需为 Addressables，先预加载成功，再同步打开相同 Surface / InstanceId 的实例。 |
+| 已切换资源后端，UI 仍从 Resources 加载 | v1.1.4 默认 UI 加载来源保持 Resources。要使用后端资源，在 UI Settings 中将“加载来源”设为“跟随资源后端”；已有面板需手动迁移和注册。 |
+| Addressables 面板加载或生成扩展不可用 | 检查 `com.unity.addressables` 是否安装，`FinkFramework.Addressables` / `FinkFramework.Editor.UI.Addressables` 是否正常编译；Address 应为区分大小写且唯一的面板类短名称。 |
 | `Get<T>` / `TryGet<T>` 返回空，但面板“应该存在” | 查询 API 不会自动创建面板，只会查找已经预加载或打开的实例。先调用 `Preload`、`PreloadAsync`、`Open` 或 `OpenAsync`；同时确认 `instanceId` 和 `surfaceId` 与打开时一致。 |
 | 同一种面板打开后出现多个实例或查询不到 | 面板身份由类型、`InstanceId` 和 `SurfaceId` 共同决定。默认实例、指定实例和不同 Surface 是不同记录，打开和查询必须使用同一组标识。 |
 | `PreloadAsync` 后面板没有显示 | 预加载只负责加载、实例化和初始化，面板保持隐藏，不会进入 Page 栈，也不会触发 `OnEnter`。之后仍需调用 `Open` 或 `OpenAsync`。 |
@@ -89,7 +92,7 @@
 | --- | --- |
 | UI Builder 创建按钮不可用 | 检查面板名称、脚本输出路径和预制体输出路径是否有效，确认目标文件不存在且目录可写。 |
 | 生成了脚本但没有生成预制体 | 查看 Console 中的生成和编译错误，确认生成类型继承 `BasePanel`，并等待 Unity 完成脚本编译后再检查目标目录。 |
-| 生成的面板无法被 UIManager 打开 | 检查预制体是否位于配置的 Resources 目录、文件名和脚本类型名是否一致，以及脚本是否挂在预制体根节点。 |
+| 生成的面板无法被 UIManager 打开 | 检查加载来源与输出目录、Address 或包名是否匹配，文件名和类型名是否一致，脚本是否挂在预制体根节点。非 Resources 首次打开使用 `OpenAsync<T>()`。 |
 
 详细步骤参见[UI 系统基础使用](/ui-system/basic-usage/)和[UI 运行时 API](/ui-system/api/)。
 

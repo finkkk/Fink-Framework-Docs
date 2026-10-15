@@ -92,13 +92,15 @@ UIManager.Instance.RegisterSurface(
 
 所有运行时面板都必须继承 `BasePanel`，并且面板脚本必须挂在预制体根节点。面板预制体名称必须与面板类型名称一致。
 
-UI 面板资源路径由 UI Settings 中的预制体输出目录决定，运行时最终按以下规则生成资源路径：
+v1.1.4 起，UI Settings 可选择 Resources、跟随资源后端或自定义加载来源。默认 Resources 按预制体目录生成地址：
 
 ```text
 res://<UI 面板 Resources 目录>/<面板类型名称>
 ```
 
-面板由 `UIPanelLoader` 统一通过 `ResManager` 加载、实例化和释放，业务代码不需要传入资源路径。
+跟随 Addressables 后端时使用 `addr://<面板类名>`，跟随 AssetBundle 时使用 `ab://<UI 包名>/<面板类名>`，跟随 `None` 时继续使用 Resources；自定义来源或跟随 `Custom` 后端时由 `UIManager.Instance.CustomPanelAssetPathResolver` 返回完整地址。配置方式见 [UI 系统配置](/ui-system/configuration/#面板加载来源)。
+
+面板由 `UIPanelLoader` 统一通过 `ResManager` 加载、实例化和释放，业务代码仍使用强类型 API，不需要传入资源路径。
 
 UIManager 提供两类加载操作：
 
@@ -112,7 +114,9 @@ MainPanel opened = UIManager.Instance.Open<MainPanel>();
 MainPanel openedAsync = await UIManager.Instance.OpenAsync<MainPanel>();
 ```
 
-同步 API 要求底层 Provider 支持同步加载。如果面板正在异步加载，`Preload` 或 `Open` 不会阻塞等待，而是记录错误并返回 `null`；此时应继续使用对应的异步 API。
+同步首次加载仅支持 Resources 的 `Preload` / `Open`，以及全局 Addressables 后端开启 `Allow Sync Load` 后的 `Preload`。非 Resources 面板的同步 `Open` 必须复用已加载实例；先完成预加载并确认返回非 `null`，且使用相同的 Surface 和 InstanceId。首次打开推荐直接使用 `OpenAsync`。
+
+如果面板正在异步加载，`Preload` 或 `Open` 不会阻塞等待，而是记录错误并返回 `null`；此时应继续使用对应的异步 API。
 
 异步 API 返回 `Cysharp.Threading.Tasks.UniTask<T>`。多个调用方访问同一个面板时共享底层加载任务；某个调用方取消自己的等待，只会取消自己的等待，不会取消其他调用方或系统正在执行的加载。
 
@@ -285,6 +289,8 @@ UIManager.Instance.EnableNavigationInteraction();
 ## 11. 编辑器工具
 
 UI Builder 位于 `Fink Framework/UI 系统/创建 UI 面板`，根据 UI Settings 中的输出目录生成面板脚本和预制体。脚本编译完成后，工具会继续创建预制体并挂载生成的面板脚本。
+
+Resources 与非 Resources 预制体目录分别保存。跟随 Addressables 后端时，新面板会自动加入指定 Group 并以类名设置 Address；跟随 AssetBundle 时自动设置包名，资源包需另行构建。切换来源不会自动迁移已有面板，详见 [UI 面板生成器](/ui-system/ui-builder/)。
 
 生成器可以选择：
 

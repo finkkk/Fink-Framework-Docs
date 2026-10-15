@@ -1,3 +1,7 @@
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 <p align="center">
   <img src="/images/brand/f_logo.webp" width="120" alt="Fink Framework Logo">
 </p>
@@ -18,7 +22,10 @@
   <img src="https://img.shields.io/github/license/finkkk/Fink-Framework?style=flat-square&cacheSeconds=0" alt="License">
 </div>
 
-<p align="center"><em>文档更新日期：<strong>2026.10.14</strong></em></p>
+<div class="docs-version-meta" aria-label="文档版本信息">
+  <span class="docs-version-meta__item"><span>文档更新日期</span><time datetime="2026-10-15">2026.10.15</time></span>
+  <span class="docs-version-meta__item"><span>适用版本</span><a :href="withBase('/appendix/changelog/#v1-1-4')">v1.1.4</a></span>
+</div>
 
 ## 框架简介
 

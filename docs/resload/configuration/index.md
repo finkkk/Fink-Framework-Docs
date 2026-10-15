@@ -34,6 +34,10 @@
 
 使用前请先在 Unity 项目中正确安装并配置 Addressables 包、分组、构建路径和远程服务。
 
+v1.1.4 起，选择 Addressables 后端但未安装 `com.unity.addressables` 时，框架会输出包缺失提示；已安装包但 `FinkFramework.Addressables` 扩展程序集不可用时，会提示检查导入和编译错误。核心程序集不直接依赖可选包，未安装时仍可编译并使用 Resources / AssetBundle。
+
+UI 面板默认仍从 Resources 加载。要跟随 Addressables，在 [UI Settings](/ui-system/configuration/#面板加载来源) 中选择“跟随资源后端”。UI 的 `Preload<T>()` 会读取这里的 `Allow Sync Load`；非 Resources 的 `Open<T>()` 仍要求先预加载成功。
+
 ## 4. 自定义后端
 
 选择 `Custom` 后，需要提供自定义的配置 `ScriptableObject`，并实现对应的资源加载 Provider、初始化逻辑和构建流程。当前核心 `ResManager` 不会根据 `CustomBackendSettings` 自动创建 Provider，项目需要在自己的初始化代码中调用 `AddProvider` 完成注册。框架提供接入点，但不会假设第三方系统的具体实现。

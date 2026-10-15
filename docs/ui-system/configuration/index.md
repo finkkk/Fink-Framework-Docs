@@ -1,6 +1,6 @@
 # UI 系统配置
 
-本页介绍 UI 系统的 Main Canvas 基础设置、自定义 Main Canvas 预制体、Main Surface 渲染模式、面板输出目录以及输入导航配置。
+本页介绍 UI 系统的 Main Canvas 基础设置、自定义 Main Canvas 预制体、Main Surface 渲染模式、面板加载来源与输出目录，以及输入导航配置。
 
 配置入口：`Edit` → `Project Settings` → `Fink Framework` → `UI Settings`，或从 `Fink Framework → UI 系统 → UI 系统配置` 打开。
 
@@ -13,8 +13,9 @@
 | Main Canvas 基础设置 | 配置 Main Surface 渲染模式、缩放、适配、像素对齐、相机距离与排序 |
 | 自定义 Main Canvas | 使用已有 Canvas 预制体，复用层节点并自动补齐缺失层 |
 | 输入与导航 | 控制是否根据输入设备自动管理 UI 导航交互 |
-| 面板生成路径 | 决定 UI Builder 输出脚本和预制体的位置 |
-| 运行时资源路径 | 根据预制体输出目录生成 UIManager 使用的 `Resources` 资源路径 |
+| UI 面板加载 | 选择 Resources、跟随资源后端或自定义来源，并配置 Group / 包名 |
+| 面板生成路径 | 决定脚本位置，分别保存 Resources 与非 Resources 预制体目录 |
+| 运行时资源路径 | 按加载来源生成 `res://`、`addr://`、`ab://` 或自定义协议地址 |
 
 UI Settings 同时影响运行时 UI 根节点、UI Builder 和面板资源加载。它不是只用于选择 Canvas 渲染模式；面板路径或输入导航配置发生变化时，也需要在这里统一维护。
 
@@ -74,6 +75,47 @@ UI Settings 同时影响运行时 UI 根节点、UI Builder 和面板资源加�
 
 点击“恢复 Main Canvas 默认设置”会恢复本板块全部字段，包括 Main Surface 模式回到 Auto、关闭自定义 Canvas、清空预制体引用，以及恢复缩放与排序默认值。该按钮不会重置输入导航选项或面板生成路径，也不会修改预制体资产；面板路径仍使用其单独的“恢复默认路径”按钮。
 
+## 面板加载来源
+
+自 v1.1.4 起，“UI 面板加载”中的“加载来源”决定面板地址的解析方式。默认保持 `Resources`，仅切换全局资源后端不会改变旧项目的 UI 加载方式。
+
+| 加载来源 | 全局资源后端 | `MainPanel` 的运行时地址 |
+| --- | --- | --- |
+| `Resources` | 任意 | `res://<Resources 相对目录>/MainPanel` |
+| 跟随资源后端（`FollowResourceBackend`） | `None` | 继续使用 Resources 地址 |
+| 跟随资源后端 | `Addressables` | `addr://MainPanel` |
+| 跟随资源后端 | `AssetBundle` | `ab://<UI 包名>/MainPanel` |
+| 跟随资源后端 | `Custom` | 由 `CustomPanelAssetPathResolver` 返回 |
+| 自定义（`Custom`） | 任意 | 由 `CustomPanelAssetPathResolver` 返回 |
+
+### Addressables
+
+先安装 `com.unity.addressables` 并在 [Resource Backend](/resload/configuration/) 中选择 Addressables，再将 UI 加载来源设为“跟随资源后端”。`UI Addressables Group` 默认是 `UI Panels`。
+
+生成器会将新面板预制体加入指定 Group（不存在时创建），并将 Address 设置为面板类的短名称，例如 `MainPanel`，区分大小写。不同命名空间中的同名面板也会使用相同 Address，因此面板类名需保持唯一。已有面板需要手动迁移并设置 Address。
+
+业务仍使用 `await UIManager.Instance.OpenAsync<MainPanel>()`，不需要传入 Address。同步打开和预加载的限制见 [运行时 API](/ui-system/api/#选择加载-api)。
+
+未安装 Addressables 包时，框架仍可编译并使用 Resources / AssetBundle；选择 Addressables 后会提示包缺失。包已安装但扩展程序集不可用时，检查 `FinkFramework.Addressables` 和 `FinkFramework.Editor.UI.Addressables` 的导入及编译错误。
+
+### AssetBundle
+
+跟随 AssetBundle 后端时，`UI AssetBundle 包名` 默认是 `ui`。使用小写且不含路径分隔符或非法字符的包名。生成器会为新预制体设置包名，运行时按 `ab://ui/MainPanel` 加载；资源包仍需由项目自行构建和部署。
+
+### 自定义来源
+
+启动时注册对应协议的 Provider，并在首次加载面板前设置地址解析器：
+
+```csharp
+// 提前通过 ResManager.Instance.AddProvider(...) 注册项目实现的 custom 协议 Provider。
+UIManager.Instance.CustomPanelAssetPathResolver =
+    panelType => $"custom://UI/{panelType.Name}";
+
+await UIManager.Instance.OpenAsync<MainPanel>();
+```
+
+解析器必须返回带 `://` 且包含资源内容的完整地址，空地址会被拒绝。自定义来源的生成器只创建脚本和预制体，资源注册由项目处理。修改解析器只影响之后创建的面板记录，已有实例继续使用加载时保存的地址释放资源。
+
 ## 面板输出目录
 
 ### 脚本输出目录
@@ -92,7 +134,9 @@ Assets/<全局脚本根目录>/UI/Panels/
 
 ### 预制体输出目录
 
-预制体目录填写 `Assets` 之后的相对路径，并且必须位于 `Resources` 目录下。默认值为：
+两类预制体目录分别保存，均填写 `Assets` 之后的相对路径。生成器根据当前加载来源选择目录，切换来源不会覆盖另一类目录。
+
+**Resources 预制体目录**用于 Resources 来源，以及跟随 `None` 后端的情况，必须位于 `Resources` 子目录下。默认值为：
 
 ```text
 Resources/UI/Panels
@@ -112,7 +156,9 @@ res://UI/Panels/MainPanel
 | 预制体文件名 | `MainPanel.prefab` |
 | 预制体根节点组件 | `MainPanel : BasePanel` |
 
-预制体输出路径会被规范化：必须位于 `Resources` 的子目录中，不能填写项目外部路径，也不能使用一个不属于 `Resources` 的目录。UI Builder 会读取这里的配置并显示最终脚本、预制体输出位置。
+**非 Resources 预制体目录**用于 Addressables、AssetBundle 和自定义来源，默认值为 `GameAssets/UI/Panels`，即 `Assets/GameAssets/UI/Panels/`。目录不能位于 `Resources`、`Editor` 或 `StreamingAssets` 下，也不能指向项目外部。
+
+UI Builder 会校验当前来源的输出路径，并显示最终脚本、预制体位置和资源注册信息。非 Resources 来源的运行时地址不从生成目录推导，而是按上面的类名或自定义解析规则生成。
 
 修改输出目录后，已经生成的面板不会自动移动。新面板会使用新目录；已有面板如果仍要被 UIManager 加载，需要手动移动资源并保持资源路径与配置一致。
 
@@ -144,7 +190,7 @@ UIManager.Instance.SetInputMode(UIInputMode.Navigation);
 | --- | --- |
 | Main Surface 渲染模式 | 屏幕 UI 使用 `ScreenSpace`；空间 UI 使用 `WorldSpace`；由环境自动选择时使用 `Auto` |
 | 脚本输出目录 | 使用项目统一的脚本根目录下的 `UI/Panels` |
-| 预制体输出目录 | 使用 `Resources/UI/Panels`，保持默认资源路径规则 |
+| 预制体输出目录 | Resources 使用 `Resources/UI/Panels`；其他来源使用 `GameAssets/UI/Panels` |
 | 自动导航交互 | 同时支持指针和键盘/手柄时开启；完全由业务接管输入时关闭 |
 
 配置页在字段发生变化时会自动写入 `Global Settings` 资产。运行时 UI 根节点和 UI Builder 都读取这份配置。
@@ -153,7 +199,7 @@ UIManager.Instance.SetInputMode(UIInputMode.Navigation);
 
 面板无法打开时，按以下顺序检查：
 
-1. UI 面板预制体目录是否位于 `Resources` 下；
+1. 加载来源是否正确：Resources 检查相对目录；Addressables 检查 Group 和 Address；AssetBundle 检查包名及构建结果；自定义来源检查解析器和 Provider；
 2. 预制体文件名是否与 C# 面板类型名一致；
 3. 面板脚本是否挂在预制体根节点；
 4. 面板类型是否继承 `BasePanel`；

@@ -13,7 +13,8 @@
 3. 选择默认过渡、安全区和示例控件；
 4. 点击“创建 UI 面板”；
 5. Unity 编译生成的脚本；
-6. 编译完成后自动创建预制体并挂载面板脚本。
+6. 编译完成后自动创建预制体并挂载面板脚本；
+7. 根据创建时的来源配置，注册 Addressables 资源或设置 AssetBundle 包名。
 
 面板名称同时作为 C# 类名和预制体文件名。建议使用 PascalCase，例如 `SettingsPanel`。
 
@@ -65,9 +66,25 @@
 脚本和预制体路径来自 `Project Settings > Fink Framework > UI Settings`：
 
 - 脚本目录：全局脚本根目录下的 UI 面板目录；
-- 预制体目录：`Assets` 下且位于 `Resources` 中的 UI 面板目录。
+- Resources 预制体目录：默认 `Assets/Resources/UI/Panels/`；
+- 非 Resources 预制体目录：默认 `Assets/GameAssets/UI/Panels/`，不能位于 `Resources`、`Editor` 或 `StreamingAssets` 下。
 
 生成器窗口会显示最终输出路径，并在目标脚本或预制体已存在时停止生成。
+
+两类预制体目录分别保存，当前加载来源决定使用哪一个；跟随 `None` 后端仍使用 Resources 目录。切换来源或修改目录不会移动已有资源，也不会修改已有 Address，迁移时需手动整理。
+
+### 资源注册（v1.1.4）
+
+| 当前来源 | 生成器行为 |
+| --- | --- |
+| Resources / 跟随 None | 保存预制体，由 Resources 路径加载 |
+| 跟随 Addressables | 加入 `UI Addressables Group`（默认 `UI Panels`，不存在时创建），Address 设置为面板类名 |
+| 跟随 AssetBundle | 设置 `UI AssetBundle 包名`（默认 `ui`），资源包需另行构建 |
+| 自定义 / 跟随 Custom | 只生成脚本和预制体，项目自行注册资源并配置地址解析器 |
+
+创建时的后端、Group 和包名会跨脚本编译保存，后续注册使用创建时的配置。Addressables 生成扩展需要安装 `com.unity.addressables`；缺失或存在编译错误时会提示不可用。
+
+Address 使用区分大小写的面板类短名称。若该 Address 已被其他资源占用，生成器会拒绝注册；同名面板即使命名空间不同也会冲突。已有目标 Group 必须可写，并包含 `BundledAssetGroupSchema` 和 `ContentUpdateGroupSchema`。AssetBundle 包名必须小写且不含路径分隔符或非法字符。
 
 代码模板位于框架编辑器资源中的：
 
@@ -154,5 +171,6 @@ Fink Framework > UI 系统 > 运行时 UI 调试器
 | --- | --- |
 | 创建按钮不可用 | 面板名称、脚本路径或预制体路径不合法，或目标文件已存在 |
 | 只有脚本没有预制体 | 查看 Console，确认脚本编译成功且类型继承 `BasePanel` |
-| 面板能生成但无法打开 | 检查预制体是否在 `Resources` 下、名称是否与类型一致、脚本是否挂在根节点 |
+| 面板能生成但无法打开 | 检查加载来源对应的目录、Address 或包名，确认名称与类型一致、脚本挂在根节点；非 Resources 首次打开使用 `OpenAsync<T>()` |
+| Addressables 注册失败 | 确认包与生成扩展可用、Address 未被其他资源占用、目标 Group 可写且包含所需 Schema |
 | 示例控件没有回调 | 检查控件名称是否被修改，以及脚本中的类型和 `GetControl<T>` 是否匹配 |
