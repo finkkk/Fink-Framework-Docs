@@ -92,7 +92,7 @@ UI Settings 同时影响运行时 UI 根节点、UI Builder 和面板资源加�
 
 先安装 `com.unity.addressables` 并在 [Resource Backend](/resload/configuration/) 中选择 Addressables，再将 UI 加载来源设为“跟随资源后端”。`UI Addressables Group` 默认是 `UI Panels`。
 
-生成器会将新面板预制体加入指定 Group（不存在时创建），并将 Address 设置为面板类的短名称，例如 `MainPanel`，区分大小写。不同命名空间中的同名面板也会使用相同 Address，因此面板类名需保持唯一。已有面板需要手动迁移并设置 Address。
+生成器默认将新面板预制体加入这里指定的 Group（不存在时创建）；v1.1.5 起也可以在创建窗口为本次生成单独指定资源组。Address 设置为面板类的短名称，例如 `MainPanel`，区分大小写。不同命名空间中的同名面板也会使用相同 Address，因此面板类名需保持唯一。已有面板需要手动迁移并设置 Address。
 
 业务仍使用 `await UIManager.Instance.OpenAsync<MainPanel>()`，不需要传入 Address。同步打开和预加载的限制见 [运行时 API](/ui-system/api/#选择加载-api)。
 
@@ -101,6 +101,8 @@ UI Settings 同时影响运行时 UI 根节点、UI Builder 和面板资源加�
 ### AssetBundle
 
 跟随 AssetBundle 后端时，`UI AssetBundle 包名` 默认是 `ui`。使用小写且不含路径分隔符或非法字符的包名。生成器会为新预制体设置包名，运行时按 `ab://ui/MainPanel` 加载；资源包仍需由项目自行构建和部署。
+
+v1.1.5 起，创建窗口可以为本次生成单独指定资源包名，但不会修改这里的运行时配置。两者不同时需同步调整本页包名，或通过自定义地址解析器返回实际资源地址。
 
 ### 自定义来源
 
@@ -160,6 +162,14 @@ res://UI/Panels/MainPanel
 
 UI Builder 会校验当前来源的输出路径，并显示最终脚本、预制体位置和资源注册信息。非 Resources 来源的运行时地址不从生成目录推导，而是按上面的类名或自定义解析规则生成。
 
+### 创建窗口中的单次覆盖（v1.1.5）
+
+本页保存项目统一配置；UI Builder 首次打开时读取这些值，默认允许为本次创建单独修改脚本目录、预制体目录，以及当前来源的资源组或包名。创建窗口显示包含 `Assets/` 的目录，而本页的目录字段仍按上述相对路径规则填写。
+
+开启“跟随 UI 配置”后，创建窗口立即同步并锁定这些字段，之后保持同步；关闭后保留当前值并允许编辑。窗口内的手动修改不会写回本页，资源来源仍由本页配置决定。
+
+本次覆盖只决定文件生成与资源注册，不会自动改变运行时查找规则。Resources 目录对应的加载路径或 AssetBundle 包名与本页配置不同时，创建窗口会提示需要同步调整；Addressables 改组后仍以面板类名作为 Address。具体字段和预览说明见 [UI 面板生成器](/ui-system/ui-builder/#本次设置与跟随-ui-配置-v1-1-5)。
+
 修改输出目录后，已经生成的面板不会自动移动。新面板会使用新目录；已有面板如果仍要被 UIManager 加载，需要手动移动资源并保持资源路径与配置一致。
 
 ## 输入与导航
@@ -193,7 +203,7 @@ UIManager.Instance.SetInputMode(UIInputMode.Navigation);
 | 预制体输出目录 | Resources 使用 `Resources/UI/Panels`；其他来源使用 `GameAssets/UI/Panels` |
 | 自动导航交互 | 同时支持指针和键盘/手柄时开启；完全由业务接管输入时关闭 |
 
-配置页在字段发生变化时会自动写入 `Global Settings` 资产。运行时 UI 根节点和 UI Builder 都读取这份配置。
+配置页在字段发生变化时会自动写入 `Global Settings` 资产。运行时 UI 根节点读取这份配置，UI Builder 将其用于初始值或开启跟随时的同步值。
 
 ## 配置检查
 

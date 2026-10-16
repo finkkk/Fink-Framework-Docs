@@ -26,14 +26,16 @@ v1.1.4 起可在 UI Settings 中切换加载来源。跟随 Addressables 后端�
 
 以 `SettingsPanel` 为例，实际接入可以按以下步骤完成：
 
-1. 在 UI Settings 中确认脚本和预制体输出目录；
-2. 使用 UI Builder 创建 `SettingsPanel.cs` 和 `SettingsPanel.prefab`；
+1. 在 UI Settings 中确认加载来源、默认输出目录及资源组或包名；
+2. 打开 UI Builder，确认本次输出设置（可单独修改，或开启“跟随 UI 配置”），检查输出预览后创建 `SettingsPanel.cs` 和 `SettingsPanel.prefab`；
 3. 在预制体中添加业务控件，并为需要通过代码访问的节点设置稳定名称；
 4. 确认预制体根节点挂载 `SettingsPanel`，且脚本编译无错误；
 5. 选择默认 Main Surface，或先注册目标 Surface；
 6. 调用 `Open` / `OpenAsync` 打开面板；
 7. 在 `OnInitialize` 中获取控件，在 `OnEnter` 或 `OnResume` 中刷新显示数据；
 8. 在 `OnExit`、`OnDispose` 中停止任务并解除外部事件订阅。
+
+创建窗口中的单独修改不会写回 UI Settings。若自定义了 Resources 加载目录或 AssetBundle 包名，需要让运行时加载配置与实际资源一致；具体操作见 [输出设置与预览](/ui-system/ui-builder/#输出设置与预览)。
 
 ## 编写面板脚本
 

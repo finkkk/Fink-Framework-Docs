@@ -23,8 +23,8 @@ import { withBase } from 'vitepress'
 </div>
 
 <div class="docs-version-meta" aria-label="文档版本信息">
-  <span class="docs-version-meta__item"><span>文档更新日期</span><time datetime="2026-10-15">2026.10.15</time></span>
-  <span class="docs-version-meta__item"><span>适用版本</span><a :href="withBase('/appendix/changelog/#v1-1-4')">v1.1.4</a></span>
+  <span class="docs-version-meta__item"><span>文档更新日期</span><time datetime="2026-10-15">2026.10.16</time></span>
+  <span class="docs-version-meta__item"><span>适用版本</span><a :href="withBase('/appendix/changelog/#v1-1-4')">v1.1.5</a></span>
 </div>
 
 ## 框架简介

@@ -288,9 +288,9 @@ UIManager.Instance.EnableNavigationInteraction();
 
 ## 11. 编辑器工具
 
-UI Builder 位于 `Fink Framework/UI 系统/创建 UI 面板`，根据 UI Settings 中的输出目录生成面板脚本和预制体。脚本编译完成后，工具会继续创建预制体并挂载生成的面板脚本。
+UI Builder 位于 `Fink Framework/UI 系统/创建 UI 面板`，默认从 UI Settings 填入输出目录及资源注册参数。v1.1.5 起可为本次创建单独修改，或开启“跟随 UI 配置”同步并锁定这些字段；输出预览会显示最终文件路径及注册信息。脚本编译完成后，工具会继续创建预制体并挂载生成的面板脚本。
 
-Resources 与非 Resources 预制体目录分别保存。跟随 Addressables 后端时，新面板会自动加入指定 Group 并以类名设置 Address；跟随 AssetBundle 时自动设置包名，资源包需另行构建。切换来源不会自动迁移已有面板，详见 [UI 面板生成器](/ui-system/ui-builder/)。
+Resources 与非 Resources 预制体目录在 UI Settings 中分别保存。跟随 Addressables 后端时，新面板会自动加入本次指定的 Group 并以类名设置 Address；跟随 AssetBundle 时设置本次指定的包名，资源包需另行构建。窗口中的手动修改不会写回统一配置，自定义 Resources 加载目录或 AssetBundle 包名后需保证运行时配置一致。切换来源不会自动迁移已有面板，详见 [UI 面板生成器](/ui-system/ui-builder/)。
 
 生成器可以选择：
 
